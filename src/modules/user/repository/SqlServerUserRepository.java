@@ -2,10 +2,8 @@ package modules.user.repository;
 import config.DbConnection;
 import config.exception.DatabaseConnectionException;
 import modules.user.model.User;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import java.sql.*;
 import java.util.Optional;
 
 
@@ -13,27 +11,22 @@ import java.util.Optional;
 public  class SqlServerUserRepository implements UserRepository {
 
 
-    // Crear usuario
+    // Insertar Usuario
     @Override
     public void save(User user) throws DatabaseConnectionException {
 
         // Model SQL
-        String sql = " INSERT INTO [user]  (dni, name, last_name, phone, address, mail, password, state ) " + "VALUES (?,?,?,?,?,?,?,?)";
+        String sql = "{call sp_user_Insert(?, ?, ?, ?) }";
 
         try(Connection connection = DbConnection.getConnection();
-            PreparedStatement stmt = connection.prepareStatement(sql)
+            CallableStatement callableStatement = connection.prepareCall(sql)
         ) {
-            // Inyectamos los datos del objeto en cada '?'
-            stmt.setString(1, user.getDni());
-            stmt.setString(2, user.getName());
-            stmt.setString(3, user.getLastName());
-            stmt.setString(4, user.getPhone());
-            stmt.setString(5, user.getAddress());
-            stmt.setString(6, user.getMail());
-            stmt.setString(7, user.getPassword());
-            stmt.setString(8, user.getState());
-
-            stmt.executeUpdate();
+            // Inyectamos los datos del objeto en cada
+            callableStatement.setString(1, user.getDni());
+            callableStatement.setString(2, user.getName());
+            callableStatement.setString(3, user.getLastName());
+            callableStatement.setString(4, user.getPassword());
+            callableStatement.executeUpdate();
 
         } catch (SQLException e) {
             throw new DatabaseConnectionException("Error al registrar el usuario con DNI: " + user.getDni(), e);
@@ -43,23 +36,18 @@ public  class SqlServerUserRepository implements UserRepository {
 
 
 
-
-
-
-
     // Buscar usuario por DNI
     @Override
     public Optional<User> findByDni(String dni) throws DatabaseConnectionException {
-        String sql = "SELECT id, dni, name, last_name, phone, mail, password, state FROM [user] WHERE dni = ?";
+        // Llamada al SP
+        String sql = "{call sp_user_FindByDni(?) }";
 
-        try(
-                Connection connection = DbConnection.getConnection();
-                PreparedStatement stmt = connection.prepareStatement(sql);
-                ) {
-            stmt.setString(1, dni);
+        try (Connection connection = DbConnection.getConnection();
+             CallableStatement callableStatement = connection.prepareCall(sql)) {
 
-            // estudiar clase ResultSet
-            try(ResultSet rs = stmt.executeQuery()) {
+            callableStatement.setString(1, dni);
+
+            try (ResultSet rs = callableStatement.executeQuery()) {
                 if (rs.next()) {
                     User user = new User();
                     user.setId(rs.getInt("id"));
@@ -74,16 +62,12 @@ public  class SqlServerUserRepository implements UserRepository {
                     return Optional.of(user);
                 }
             }
-
-
         } catch (SQLException e) {
-            throw new DatabaseConnectionException("Error al buscar usuario por DNI: " + dni, e);
+            e.printStackTrace();
+            throw new DatabaseConnectionException("Error al buscar usuario por DNI mediante SP: " + dni, e);
         }
-
         return Optional.empty();
     }
-
-
 
 
     // Actualizar usuario
@@ -132,3 +116,4 @@ public  class SqlServerUserRepository implements UserRepository {
 
 
 }
+

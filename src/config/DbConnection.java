@@ -1,6 +1,4 @@
 package config;
-
-
 import config.exception.DatabaseConnectionException;
 
 import java.io.IOException;
@@ -9,8 +7,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
-public class DbConnection {
 
+
+public class DbConnection {
 
     // Establecer la conección protegiendo las credenciales
 
@@ -37,17 +36,7 @@ public class DbConnection {
             throw new DatabaseConnectionException("Error al establecer la conexión con la base de datos", e );
         }
 
-
-
-
-
-
     }
-
-
-
-
-
 
 }
 

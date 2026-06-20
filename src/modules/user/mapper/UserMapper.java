@@ -11,14 +11,18 @@ public class UserMapper {
         if (userRegistrationDto == null) {
             return null;
         }
-
+        // No Null
         User user = new User();
-
+        user.setDni(userRegistrationDto.getDni());
         user.setName(userRegistrationDto.getName());
         user.setLastName(userRegistrationDto.getLastName());
-        user.setDni(userRegistrationDto.getDni());
+        user.setPassword(userRegistrationDto.getPin());
+        // Nulls
+        user.setPhone(null);
+        user.setAddress(null);
+        user.setMail(null);
+        user.setState("Active");
 
-        user.setState("Ative");
 
         return user;
 

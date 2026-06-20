@@ -2,7 +2,6 @@
 <project version="4">
   <component name="DataSourcePerFileMappings">
     <file url="file://$PROJECT_DIR$/database/01_schema.sql" value="697f88ca-98cf-4b03-869b-0273cccf85bd" />
-    <file url="file://$PROJECT_DIR$/database/02_seeding.sql" value="697f88ca-98cf-4b03-869b-0273cccf85bd" />
-    <file url="file://$PROJECT_DIR$/database/04_consultas.sql" value="697f88ca-98cf-4b03-869b-0273cccf85bd" />
+    <file url="file://$PROJECT_DIR$/database/procedures/sp_user_operations.sql" value="697f88ca-98cf-4b03-869b-0273cccf85bd" />
   </component>
 </project>

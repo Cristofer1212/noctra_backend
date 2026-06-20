@@ -1,7 +1,6 @@
 package modules.user.model;
 
 import java.time.LocalDateTime;
-
 public class User {
     private Integer id;
     private String dni;
@@ -10,7 +9,7 @@ public class User {
     private String phone;
     private String address;
     private String mail;
-    private String password;
+    private String password; // TO DO --> Hashear PIN
     private String state;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -51,7 +50,9 @@ public class User {
     public void setMail(String mail) { this.mail = mail; }
 
     public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getState() { return state; }
     public void setState(String state) { this.state = state; }
