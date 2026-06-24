@@ -5,7 +5,7 @@ import modules.user.exception.UserValidatorException;
 public class UserValidator {
 
     public void validateLogin(UserRegistrationDto userRegistrationDto) throws  UserValidatorException {
-        if (userRegistrationDto.getDni() == null || userRegistrationDto.getDni().length() <= 8) {
+        if (userRegistrationDto.getDni() == null || userRegistrationDto.getDni().length() != 8) {
             throw new UserValidatorException("El DNI debe tener 8 dígitos");
         }
         if (userRegistrationDto.getPin() == null || !userRegistrationDto.getPin().matches("\\d{4}")) {
