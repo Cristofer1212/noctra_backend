@@ -1,42 +1,31 @@
+USE noctra_mvp;
 
+-- 1. Procedimiento para insertar usuario
+DROP PROCEDURE IF EXISTS sp_user_Insert;
 
--- Insertar Usuario
--- borrar el sp si existe
-IF OBJECT_ID('sp_user_Insert', 'P') IS NOT NULL
-    DROP PROCEDURE sp_user_Insert;
-GO
--- Comprobar si existe el store procedure
-SELECT * FROM sys.procedures
-
-CREATE PROCEDURE sp_user_Insert
-    @dni VARCHAR(20),
-    @name VARCHAR(50),
-    @lastName VARCHAR(50),
-    @password VARCHAR(255)
-    -- @phone eliminado
-    -- @address VARCHAR(100),
-    -- @mail VARCHAR(100),
-    -- @state VARCHAR(20)
-AS
+DELIMITER //
+CREATE PROCEDURE sp_user_Insert(
+    IN p_dni VARCHAR(20),
+    IN p_name VARCHAR(50),
+    IN p_lastName VARCHAR(50),
+    IN p_password VARCHAR(255)
+)
 BEGIN
-    INSERT INTO [user] (dni, name, last_name, password)
-    VALUES (@dni, @name, @lastName, @password);
-END
-GO
+    INSERT INTO user (dni, name, last_name, password)
+    VALUES (p_dni, p_name, p_lastName, p_password);
+END //
+DELIMITER ;
 
-CREATE PROCEDURE sp_user_FindByDni
-@dni NVARCHAR(20)
-AS
+-- 2. Procedimiento para buscar por DNI
+DROP PROCEDURE IF EXISTS sp_user_FindByDni;
+
+DELIMITER //
+CREATE PROCEDURE sp_user_FindByDni(
+    IN p_dni VARCHAR(20)
+)
 BEGIN
     SELECT id, dni, name, last_name, phone, mail, password, state, address
-    FROM [user]
-    WHERE dni = @dni;
-END
-
-
-
-
-    -- ctrl + shif  r (acctualizar el cache de msssql)
-
-use Noctra_MVP
-SELECT * FROM [user]
+    FROM user
+    WHERE dni = p_dni;
+END //
+DELIMITER ;

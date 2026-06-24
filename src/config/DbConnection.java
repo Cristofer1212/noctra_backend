@@ -11,7 +11,7 @@ import java.util.Properties;
 
 public class DbConnection {
 
-    // Establecer la conección protegiendo las credenciales
+    // Establecer la connection protegiendo las credenciales
 
     public static Connection getConnection() throws DatabaseConnectionException {
 
@@ -23,7 +23,8 @@ public class DbConnection {
 
             // hacerr mapeable input
             properties.load(input);
-
+            // cargar driver MySQL
+            Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(
                     properties.getProperty("db.url"),
                     properties.getProperty("db.user"),

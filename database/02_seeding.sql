@@ -62,4 +62,4 @@ INSERT INTO [scan] (invitation_id, scanned_by, movement_type, result, scan_at)
 VALUES
     (1, 2, 'Entrada', 'Error: QR Ilegible', '2026-06-15 23:15:00'),
     (1, 2, 'Entrada', 'Exitoso', '2026-06-15 23:16:00');
-/*
+*/
