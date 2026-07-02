@@ -10,11 +10,11 @@ public class DatabaseInitializer {
     public static void initializeDatabase() throws DatabaseConnectionException {
         // 1. Verificamos si ya existen datos de forma segura para MySQL
         if (checkIfDatabaseHasData()) {
-            System.out.println("\n[MIGRACIÓN] Base de datos detectada. Todo listo para trabajar.");
+            System.out.println("\nBase de datos detectada. Todo listo para trabajar.");
             return;
         }
 
-        System.out.println("\n=== [MIGRACIÓN] Base de datos vacía o no detectada. Verifique en Workbench ===");
+        System.out.println("\nBase de datos vacía o no detectada. Verifique en Workbench");
         // Si llegamos aquí, el programa sigue su curso, pero no forzamos la ejecución de archivos .sql
         // porque ya los ejecutamos manualmente en Workbench.
     }

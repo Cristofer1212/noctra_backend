@@ -4,8 +4,7 @@ import config.exception.DatabaseConnectionException;
 import modules.user.dto.UserRegistrationDto;
 import modules.user.mapper.UserMapper;
 import modules.user.model.User;
-import modules.user.repository.SqlServerUserRepository;
-import modules.user.repository.UserRepository;
+import modules.user.repository.IUserRepository;
 import modules.user.validator.UserValidator;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -13,12 +12,12 @@ import java.util.Optional;
 
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final IUserRepository IUserRepository;
     private final UserValidator userValidator;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, UserValidator userValidator, UserMapper userMapper) {
-        this.userRepository = userRepository;
+    public UserService(IUserRepository IUserRepository, UserValidator userValidator, UserMapper userMapper) {
+        this.IUserRepository = IUserRepository;
         this.userValidator = userValidator;
         this.userMapper = userMapper;
     }
@@ -34,11 +33,11 @@ public class UserService {
         user.setPassword(hashedPassword);
 
         // guardar base de datos
-        userRepository.save(user);
+        IUserRepository.save(user);
     }
 
     public boolean login(String dni, String pin) throws DatabaseConnectionException {
-        Optional<User> userOptional = userRepository.findByDni(dni);
+        Optional<User> userOptional = IUserRepository.findByDni(dni);
         if ( userOptional.isEmpty()) {
             return false;
         }

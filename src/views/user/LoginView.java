@@ -8,10 +8,7 @@ import java.awt.*;
 
 public class LoginView extends JFrame {
 
-    private UserService userService;
-
     public LoginView(UserService userService) {
-        this.userService = userService;
         practicanto();
 
     }
