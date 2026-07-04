@@ -1,4 +1,4 @@
-USE noctra_mvp;
+USE Noctra_MVP;
 -- 1. DESTRUCCIÓN
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS scan;
@@ -87,7 +87,7 @@ CREATE TABLE scan (
 );
 
 -- Store Procedure
-USE noctra_mvp;
+USE Noctra_MVP;
 
 -- 1. Procedimiento para insertar usuario
 DROP PROCEDURE IF EXISTS sp_user_Insert;
