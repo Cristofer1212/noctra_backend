@@ -43,8 +43,21 @@
             <version>12.6.1.jre11</version>
         </dependency>
     </dependencies>
+
+
     <build>
         <sourceDirectory>src</sourceDirectory>
+        
+        <!-- Configuración corregida para mantener la carpeta 'resources' -->
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>resources/**</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -56,5 +69,6 @@
             </plugin>
         </plugins>
     </build>
-       
+  
+
 </project>

@@ -34,3 +34,5 @@ bin/
 noctra_backend.iml
 .idea/workspace.xml
 src/resources/config.properties
+pom.xml
+target
