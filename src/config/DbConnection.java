@@ -34,6 +34,7 @@ public class DbConnection {
 
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new DatabaseConnectionException("Error al establecer la conexión con la base de datos", e );
         }
 

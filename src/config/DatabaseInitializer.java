@@ -20,18 +20,16 @@ public class DatabaseInitializer {
     }
 
     private static boolean checkIfDatabaseHasData() {
-        // Sin corchetes [ ], SQL estándar de MySQL
-        String sql = "SELECT COUNT(*) FROM user";
+        // Esta consulta verifica si la tabla 'user' existe en el esquema
+        String sql = "SHOW TABLES LIKE 'user'";
         try (Connection conn = DbConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
+
+            // Si hay un resultado, es que la tabla existe
+            return rs.next();
         } catch (Exception e) {
-            // Si hay error (ej. la tabla no existe), devolvemos false
             return false;
         }
-        return false;
     }
 }

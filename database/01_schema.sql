@@ -1,4 +1,4 @@
-USE noctra_mvp;
+USE Noctra_MVP;
 -- 1. DESTRUCCIÓN
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS scan;
