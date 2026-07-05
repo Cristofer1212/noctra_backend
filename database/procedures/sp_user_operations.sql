@@ -1,4 +1,4 @@
-USE noctra_mvp;
+USE Noctra_MVP;
 
 -- 1. Procedimiento para insertar usuario
 DROP PROCEDURE IF EXISTS sp_user_Insert;
