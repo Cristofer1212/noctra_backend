@@ -1,14 +1,14 @@
 package modules.user.dto;
 
 public class LoginDto {
-    private String dni;
-    private String pin;
+  private String pin;
+  private String nickname;
 
-    public String getDni() {
-        return dni;
-    }
+  public String getPin() {
+    return pin;
+  }
 
-    public String getPin() {
-        return pin;
-    }
+  public String getNickname() {
+    return nickname;
+  }
 }
