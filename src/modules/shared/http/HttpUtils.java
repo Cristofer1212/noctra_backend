@@ -2,10 +2,7 @@ package modules.shared.http;
 
 import com.sun.net.httpserver.HttpExchange;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class HttpUtils {
@@ -21,15 +18,20 @@ public class HttpUtils {
         }
     }
 
-    // Metodo helper para leer el Body de la petición (estudiar sintaxis de mierda)
+    // De Bytes a String
     public static  String readRequestBody(HttpExchange exchange) throws IOException {
-        try (InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
-             BufferedReader br = new BufferedReader(isr)) {
+        try (
+                InputStream inputStream = exchange.getRequestBody();
+                InputStreamReader isr = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                BufferedReader br = new BufferedReader(isr)) {
+
             StringBuilder jsonBuilder = new StringBuilder();
             String line;
+
             while ((line = br.readLine()) != null) {
                 jsonBuilder.append(line);
             }
+
             return jsonBuilder.toString();
         }
     }

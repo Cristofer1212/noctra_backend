@@ -18,7 +18,6 @@ public class DatabaseInitializer {
         // Si llegamos aquí, el programa sigue su curso, pero no forzamos la ejecución de archivos .sql
         // porque ya los ejecutamos manualmente en Workbench.
     }
-
     private static boolean checkIfDatabaseHasData() {
         // Esta consulta verifica si la tabla 'user' existe en el esquema
         String sql = "SHOW TABLES LIKE 'user'";

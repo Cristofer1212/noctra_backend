@@ -1,12 +1,12 @@
 package modules.invitation.dto;
 
-public class SendInvitation {
+public class SendInvitationDto {
 
 
     private String gender;
     private String phoneGuest;
 
-    public SendInvitation(String gender, String phoneGuest) {
+    public SendInvitationDto(String gender, String phoneGuest) {
         this.gender = gender;
         this.phoneGuest = phoneGuest;
     }

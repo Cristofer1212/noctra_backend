@@ -65,11 +65,12 @@ CREATE TABLE invitation (
                             event_id INT NOT NULL,
                             issuer_user_id INT NOT NULL, -- usuario emisor
                             guest_id INT NOT NULL,
+                            token VARCHAR(255) NOT NULL UNIQUE,
                             code_qr VARCHAR(255) NOT NULL,
                             state VARCHAR(50) DEFAULT 'SIN_USAR' NOT NULL,
                             created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                            sent_at DATETIME,
-                            read_at DATETIME,
+                            sent_at DATETIME NULL,
+                            read_at DATETIME NULL,
                             CONSTRAINT FK_invitation_event FOREIGN KEY (event_id) REFERENCES event(id),
                             CONSTRAINT FK_invitation_issuer FOREIGN KEY (issuer_user_id) REFERENCES user(id),
                             CONSTRAINT FK_invitation_guest FOREIGN KEY (guest_id) REFERENCES guest(id)
