@@ -12,37 +12,37 @@ import java.util.Optional;
 
 public class UserService {
 
-    private final IUserRepository IUserRepository;
-    private final UserValidator userValidator;
-    private final UserMapper userMapper;
+  private final IUserRepository IUserRepository;
+  private final UserValidator userValidator;
+  private final UserMapper userMapper;
 
-    public UserService(IUserRepository IUserRepository, UserValidator userValidator, UserMapper userMapper) {
-        this.IUserRepository = IUserRepository;
-        this.userValidator = userValidator;
-        this.userMapper = userMapper;
+  public UserService(IUserRepository IUserRepository, UserValidator userValidator, UserMapper userMapper) {
+    this.IUserRepository = IUserRepository;
+    this.userValidator = userValidator;
+    this.userMapper = userMapper;
+  }
+
+  public void registerUser(UserRegistrationDto userRegistrationDto) throws DatabaseConnectionException {
+    // validar
+    userValidator.validateRegistration(userRegistrationDto);
+    // convertir (delegamos a maper)
+    User user = userMapper.toEntity(userRegistrationDto);
+
+    // hashear pin
+    String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+    user.setPassword(hashedPassword);
+
+    // guardar base de datos
+    IUserRepository.save(user);
+  }
+
+  public boolean login(String nickname, String pin) throws DatabaseConnectionException {
+    Optional<User> userOptional = IUserRepository.findByNickname(nickname);
+    if (userOptional.isEmpty()) {
+      return false;
     }
-
-    public void registerUser(UserRegistrationDto userRegistrationDto) throws DatabaseConnectionException {
-        // validar
-        userValidator.validateRegistration(userRegistrationDto);
-        // convertir (delegamos a maper)
-        User user = userMapper.toEntity(userRegistrationDto);
-
-        // hashear pin
-        String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
-        user.setPassword(hashedPassword);
-
-        // guardar base de datos
-        IUserRepository.save(user);
-    }
-
-    public boolean login(String dni, String pin) throws DatabaseConnectionException {
-        Optional<User> userOptional = IUserRepository.findByDni(dni);
-        if ( userOptional.isEmpty()) {
-            return false;
-        }
-        User user = userOptional.get();
-        return BCrypt.checkpw(pin, user.getPassword());
-    }
+    User user = userOptional.get();
+    return BCrypt.checkpw(pin, user.getPassword());
+  }
 
 }
