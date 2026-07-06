@@ -1,5 +1,6 @@
 package config;
 import config.exception.DatabaseConnectionException;
+import modules.shared.config.ConfigLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,27 +16,15 @@ public class DbConnection {
 
     public static Connection getConnection() throws DatabaseConnectionException {
 
-        Properties properties = new Properties();
-
-        try (InputStream input = DbConnection.class.getClassLoader().getResourceAsStream("resources/config.properties") ) {
-
-            if ( input == null ) throw new IOException("Credenciales no enctradas");
-
-            // hacerr mapeable input
-            properties.load(input);
-            // cargar driver MySQL
-            Class.forName("com.mysql.cj.jdbc.Driver");
+        try {
+            // Ahora solo le pides los datos al cargador de configuración
             return DriverManager.getConnection(
-                    properties.getProperty("db.url"),
-                    properties.getProperty("db.user"),
-                    properties.getProperty("db.password")
+                    ConfigLoader.getProperty("db.url"),
+                    ConfigLoader.getProperty("db.user"),
+                    ConfigLoader.getProperty("db.password")
             );
-
-
-
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new DatabaseConnectionException("Error al establecer la conexión con la base de datos", e );
+            throw new DatabaseConnectionException("Error en BD", e);
         }
 
     }

@@ -56,11 +56,11 @@ public class UserController implements HttpHandler {
 
     private void handleRegister(HttpExchange exchange) throws IOException {
         try {
-            // 1. Leer el JSON
+            // 1. De String a Json
             String json = HttpUtils.readRequestBody(exchange);
-            // 2. Convertir JSON a DTO - serializar -
+            // 2. De Json a DTO
             UserRegistrationDto userRegistrationDto = JsonUtils.fromJson(json, UserRegistrationDto.class);
-            // 3. Llamar al servicio
+            // 3. DTO --> Service
             userService.registerUser(userRegistrationDto);
 
             HttpUtils.sendResponse(exchange, 201, "{\"message\": \"Usuario creado con éxito en Noctra MVP\"}");

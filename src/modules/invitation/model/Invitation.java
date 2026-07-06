@@ -7,6 +7,7 @@ public class Invitation {
     private Integer eventId;
     private Integer issuerUserId;
     private Integer guestId;
+    private String token;
     private String codeQr;
     private String state;
     private LocalDateTime createdAt;
@@ -17,10 +18,11 @@ public class Invitation {
     public Invitation() {}
 
     // Constructor con campos obligatorios
-    public Invitation(Integer eventId, Integer issuerUserId, Integer guestId, String codeQr) {
+    public Invitation(Integer eventId, Integer issuerUserId, Integer guestId, String token ,String codeQr) {
         this.eventId = eventId;
         this.issuerUserId = issuerUserId;
         this.guestId = guestId;
+        this.token = token;
         this.codeQr = codeQr;
         this.state = "SIN_USAR";
         this.createdAt = LocalDateTime.now();
@@ -28,7 +30,6 @@ public class Invitation {
 
     // Getters y Setters
     public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
 
     public Integer getEventId() { return eventId; }
     public void setEventId(Integer eventId) { this.eventId = eventId; }
@@ -38,6 +39,9 @@ public class Invitation {
 
     public Integer getGuestId() { return guestId; }
     public void setGuestId(Integer guestId) { this.guestId = guestId; }
+
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
 
     public String getCodeQr() { return codeQr; }
     public void setCodeQr(String codeQr) { this.codeQr = codeQr; }

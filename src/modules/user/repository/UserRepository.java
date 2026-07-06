@@ -18,8 +18,8 @@ public  class UserRepository implements IUserRepository {
         // Model SQL
         String sql = "{call sp_user_Insert(?, ?, ?, ?) }";
 
-        try(Connection connection = DbConnection.getConnection();
-            CallableStatement callableStatement = connection.prepareCall(sql)
+        try (Connection connection = DbConnection.getConnection();
+             CallableStatement callableStatement = connection.prepareCall(sql)
         ) {
             // Inyectamos los datos del objeto en cada
             callableStatement.setString(1, user.getDni());
@@ -33,7 +33,6 @@ public  class UserRepository implements IUserRepository {
         }
 
     }
-
 
 
     // Buscar usuario por DNI
@@ -111,9 +110,5 @@ public  class UserRepository implements IUserRepository {
             throw new DatabaseConnectionException("Error al eliminar el usuario con DNI: " + dni, e);
         }
     }
-
-
-
-
 }
 
