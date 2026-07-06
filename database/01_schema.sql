@@ -10,20 +10,23 @@ DROP TABLE IF EXISTS user;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 2. CREACIÓN
+DROP TABLE IF EXISTS user;
+
 CREATE TABLE user (
                       id INT AUTO_INCREMENT PRIMARY KEY,
                       dni VARCHAR(20) NOT NULL UNIQUE,
                       name VARCHAR(50) NOT NULL,
                       last_name VARCHAR(50) NOT NULL,
-    -- phone VARCHAR(11) NULL,
+                      phone VARCHAR(20) NULL,
+                      nickname VARCHAR(50) NOT NULL,
+                      pin VARCHAR(255) NOT NULL,
+                      password VARCHAR(255) NULL, -- Se mantiene por compatibilidad
                       address VARCHAR(255) NULL,
-    -- mail VARCHAR(150) NULL,
-                      password VARCHAR(255) NOT NULL,
+                      mail VARCHAR(150) NULL,
                       state VARCHAR(50) DEFAULT 'ACTIVE' NOT NULL,
                       created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
                       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
 );
-
 CREATE TABLE event (
                        id INT AUTO_INCREMENT PRIMARY KEY,
                        user_id INT NOT NULL,
@@ -86,38 +89,3 @@ CREATE TABLE scan (
                       CONSTRAINT FK_scan_invitation FOREIGN KEY (invitation_id) REFERENCES invitation(id),
                       CONSTRAINT FK_scan_scanned_by FOREIGN KEY (scanned_by) REFERENCES user(id)
 );
-
--- Store Procedure
-USE Noctra_MVP;
-
--- 1. Procedimiento para insertar usuario
-DROP PROCEDURE IF EXISTS sp_user_Insert;
-
-DELIMITER //
-CREATE PROCEDURE sp_user_Insert(
-    IN p_dni VARCHAR(20),
-    IN p_name VARCHAR(50),
-    IN p_lastName VARCHAR(50),
-    IN p_password VARCHAR(255)
-)
-BEGIN
-    INSERT INTO user (dni, name, last_name, password)
-    VALUES (p_dni, p_name, p_lastName, p_password);
-END //
-DELIMITER ;
-
--- 2. Procedimiento para buscar por DNI
-DROP PROCEDURE IF EXISTS sp_user_FindByDni;
-
-DELIMITER //
-CREATE PROCEDURE sp_user_FindByDni(
-    IN p_dni VARCHAR(20)
-)
-BEGIN
-    SELECT id, dni, name, last_name, phone, mail, password, state, address
-    FROM user
-    WHERE dni = p_dni;
-END //
-DELIMITER ;
-
-

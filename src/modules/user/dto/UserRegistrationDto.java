@@ -62,4 +62,12 @@ public class UserRegistrationDto {
     this.nickname = nickname;
   }
 
+  public String getPhone() {
+    return phone;
+  }
+
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
 }

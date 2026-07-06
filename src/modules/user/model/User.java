@@ -135,4 +135,7 @@ public class User {
     this.nickname = nickname;
   }
 
+    public String getPin() {
+      return password;
+    }
 }

@@ -70,6 +70,8 @@ public class UserController implements HttpHandler {
       HttpUtils.sendResponse(exchange, 400, "{\"error\": \"" + e.getMessage() + "\"}");
 
     } catch (Exception e) {
+      System.out.println("DEBUG: Entré al catch del controlador!"); // Añade esta línea
+      e.printStackTrace();
       // 2. MANDA EL MENSAJE REAL A POSTMAN (no un mensaje fijo)
       HttpUtils.sendResponse(exchange, 500, "{\"error\": \"" + e.toString() + "\"}");
 

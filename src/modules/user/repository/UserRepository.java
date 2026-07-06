@@ -23,7 +23,7 @@ public class UserRepository implements IUserRepository {
         if (rs.next()) {
           return Optional.of(new User(
               rs.getInt("id"),
-              rs.getString("password")));
+              rs.getString("pin")));
         }
       }
     } catch (SQLException e) {
@@ -36,37 +36,40 @@ public class UserRepository implements IUserRepository {
   // Insertar Usuario
   @Override
   public void save(User user) throws DatabaseConnectionException {
-
-    // Model SQL
-    String sql = "{call sp_user_Insert(?, ?, ?, ?) }";
+    // Aquí tenemos 6 signos '?'
+    String sql = "INSERT INTO user (dni, name, last_name, phone, pin, nickname) VALUES (?, ?, ?, ?, ?, ?)";
 
     try (Connection connection = DbConnection.getConnection();
-        CallableStatement callableStatement = connection.prepareCall(sql)) {
-      // Inyectamos los datos del objeto en cada
-      callableStatement.setString(1, user.getDni());
-      callableStatement.setString(2, user.getName());
-      callableStatement.setString(3, user.getLastName());
-      callableStatement.setString(4, user.getPassword());
-      callableStatement.executeUpdate();
+         // OJO: Cambia prepareCall por prepareStatement
+         PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+      // Aquí tenemos que enviar 6 valores en total
+      preparedStatement.setString(1, user.getDni());
+      preparedStatement.setString(2, user.getName());
+      preparedStatement.setString(3, user.getLastName());
+      preparedStatement.setString(4, user.getPhone());
+      preparedStatement.setString(5, user.getPin());
+      preparedStatement.setString(6, user.getNickname());
+
+      preparedStatement.executeUpdate();
 
     } catch (SQLException e) {
       throw new DatabaseConnectionException("Error al registrar el usuario con DNI: " + user.getDni(), e);
     }
-
   }
 
   // Buscar usuario por DNI
   @Override
   public Optional<User> findByDni(String dni) throws DatabaseConnectionException {
     // Llamada al SP
-    String sql = "{call sp_user_FindByDni(?) }";
+    String sql = "SELECT id, dni, name, last_name, phone, address, mail, password, state FROM user WHERE dni = ?";
 
     try (Connection connection = DbConnection.getConnection();
-        CallableStatement callableStatement = connection.prepareCall(sql)) {
+        PreparedStatement preparedStatement = connection.prepareCall(sql)) {
 
-      callableStatement.setString(1, dni);
+      preparedStatement.setString(1, dni);
 
-      try (ResultSet rs = callableStatement.executeQuery()) {
+      try (ResultSet rs = preparedStatement.executeQuery()) {
         if (rs.next()) {
           User user = new User();
           user.setId(rs.getInt("id"));
