@@ -14,9 +14,7 @@ import java.sql.Connection;
 
 public class Main {
 
-  // variables
-  static long comparaciones = 0;
-  static long recursiones = 0;
+  // Ya se pueden enviar mensajes al WhatsApp al crear invitación. Falta que se acepte la plantilla de meta
   private static final int PORT = 8080;
 
   public static void main(String[] args) {
