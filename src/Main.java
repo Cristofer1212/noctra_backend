@@ -6,17 +6,22 @@ import modules.user.mapper.UserMapper;
 import modules.user.repository.*;
 import modules.user.service.UserService;
 import modules.user.validator.UserValidator;
+import modules.shared.integrations.meta_webhook.WebhookController;
+import modules.shared.integrations.meta_webhook.WebhookHandler;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.sql.Connection;
+
 public class Main {
     // Ya se pueden enviar mensajes al WhatsApp al crear invitación. Falta que se acepte la plantilla de meta
     private static final int PORT = 8080;
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws IOException {
         iniciarServidorYApp();
     }
-    private static void iniciarServidorYApp() {
+
+    private static void iniciarServidorYApp() throws IOException {
         try {
             DatabaseInitializer.initializeDatabase();
             try (Connection connection = DbConnection.getConnection()) {
@@ -24,20 +29,32 @@ public class Main {
                     System.out.println("Entorno sincronizado");
                 }
             }
+
             IUserRepository userRepository = new UserRepository();
             UserValidator validator = new UserValidator();
             UserMapper mapper = new UserMapper();
             UserService userService = new UserService(userRepository, validator, mapper);
+
             System.out.println("Linea 40");
+
             HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
+
+            // 1. REGISTRO DEL WEBHOOK (Indispensable para que Meta conecte)
+            server.createContext("/webhook", new WebhookController(new WebhookHandler()));
+
+            // 2. TUS OTRAS RUTAS (Asegúrate de que AppRouter no use el path /webhook)
             AppRouter.configure(server);
+
             server.setExecutor(null);
             server.start();
+
             System.out.println("Corriendo Puerto: " + PORT);
+
             SwingUtilities.invokeLater(() -> {
                 LoginView loginView = new LoginView(userService);
                 loginView.setVisible(true);
             });
+
         } catch (DatabaseConnectionException e) {
             System.err.println("[ERROR CRÍTICO] " + e.getMessage());
         } catch (IOException e) {

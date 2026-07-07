@@ -89,8 +89,19 @@ public class InvitationService {
 
 
 
+    // Modifica este método en tu clase InvitationService
     public void sendWhatsAppInvitation(String phoneNumber, String qrUrl) {
-        whatsappService.sendInvitation(phoneNumber, qrUrl);
+        // Aquí obtienes los datos necesarios.
+        // Asegúrate de que tu modelo Invitation tenga estos getters.
+        // Si no los tiene, agrégalos o recupéralos de otro servicio.
+
+        String nombre = "Cristofer"; // O invitation.getGuest().getName();
+        String evento = "POO"; // O invitation.getEvent().getName();
+        String fechaInicio = "Hoy";   // O format(invitation.getEvent().getStartDate());
+        String fechaFin = "Mañana";   // O format(invitation.getEvent().getEndDate());
+
+        // Ahora pasas los 6 parámetros requeridos
+        whatsappService.sendInvitation(phoneNumber, qrUrl, nombre, evento, fechaInicio, fechaFin);
     }
 
 

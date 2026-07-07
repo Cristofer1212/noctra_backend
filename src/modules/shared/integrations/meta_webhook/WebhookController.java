@@ -40,16 +40,19 @@ public class WebhookController implements HttpHandler {
                 }
             }
         } else if ("POST".equals(exchange.getRequestMethod())) {
-            // Leer el cuerpo del mensaje que envía Meta
             java.io.InputStream is = exchange.getRequestBody();
             byte[] bodyBytes = is.readAllBytes();
             String body = new String(bodyBytes);
 
+            // Procesa el mensaje
+            webhookHandler.handleIncomingMessage(body);
             System.out.println("EVENTO RECIBIDO DE META: " + body);
 
-            // Responder a Meta para que deje de marcar error
+            // RESPONDE SOLO UNA VEZ
             exchange.sendResponseHeaders(200, 0);
-            exchange.getResponseBody().close();
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write("".getBytes());
+            }
         }
     }
 
