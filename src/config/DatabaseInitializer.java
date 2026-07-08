@@ -15,8 +15,6 @@ public class DatabaseInitializer {
         }
 
         System.out.println("\nBase de datos vacía o no detectada. Verifique en Workbench");
-        // Si llegamos aquí, el programa sigue su curso, pero no forzamos la ejecución de archivos .sql
-        // porque ya los ejecutamos manualmente en Workbench.
     }
     private static boolean checkIfDatabaseHasData() {
         // Esta consulta verifica si la tabla 'user' existe en el esquema

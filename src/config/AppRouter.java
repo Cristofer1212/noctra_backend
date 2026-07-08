@@ -8,6 +8,8 @@ import modules.invitation.controller.InvitationController;
 import modules.invitation.repository.IInvitationRepository;
 import modules.invitation.repository.InvitationRepository;
 import modules.invitation.service.InvitationService;
+import modules.portero.controller.PorteroController;
+import modules.portero.service.PorteroService;
 import modules.shared.http.HttpClientWrapper;
 import modules.shared.integrations.cloudinary.CloudinaryService;
 import modules.shared.integrations.cloudinary.ICloudinaryService;
@@ -17,6 +19,8 @@ import modules.shared.integrations.meta_webhook.WebhookHandler;
 import modules.shared.integrations.whatsapp.IWhatsappService;
 import modules.shared.integrations.whatsapp.WhatsappService;
 import modules.shared.utils.qr.IQrService;
+import modules.shared.utils.scanner.IScanner;
+import modules.shared.utils.scanner.ScannerService;
 import modules.user.controller.UserController;
 import modules.user.mapper.UserMapper;
 import modules.user.repository.UserRepository;
@@ -47,18 +51,27 @@ public class AppRouter {
         InvitationService invitationService = new InvitationService(guestService, invitationRepository, cloudinaryService,whatsappService );
         InvitationController invitationController = new InvitationController(invitationService);
 
-        // ... al final de tu método configure
+        // Portero Module
+        InvitationRepository invitationRepository1 = new InvitationRepository();
+        IWhatsappService whatsappService1 = new WhatsappService(httpClient);
+        IScanner iScanner = new ScannerService(invitationRepository1);
+        PorteroService porteroService = new PorteroService(whatsappService1);
+        PorteroController porteroController= new PorteroController(porteroService, iScanner);
+
+
+
+        // Webhooks
         IWebhookHandler webhookHandler = new WebhookHandler();
         WebhookController webhookController = new WebhookController(webhookHandler);
 
+
+
+        // Endpoints
         server.createContext("/api/webhook", webhookController);
-
-
-
-        // crear la ruta para postman
         server.createContext("/users", userController);
         server.createContext("/invitations", invitationController);
-
+        server.createContext("/portero/createPortero", porteroController);
+        server.createContext("/portero/validar", porteroController);
 
 
     }

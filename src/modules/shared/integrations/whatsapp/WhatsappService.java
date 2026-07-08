@@ -20,7 +20,7 @@ public class WhatsappService implements IWhatsappService {
 
     @Override
     public void sendInvitation(String phoneNumber, String qrUrl, String nombre, String evento, String fechaInicio, String fechaFin) {
-        // Aquí construyes el JSON para él, témplate aprobado por Meta
+        // templat meta
         String jsonPayload = String.format("""
             {
                 "messaging_product": "whatsapp",
@@ -54,4 +54,35 @@ public class WhatsappService implements IWhatsappService {
 
         httpClient.post(apiUrl, jsonPayload, token);
     }
+
+    @Override
+    public void sendPorteroAsignado(String  nombreStaff, String numCelular, String nombreEvento, String nombreRemitente) {
+        // Template meta
+        String jsonPayload = String.format(
+                "{" +
+                        "  \"messaging_product\": \"whatsapp\"," +
+                        "  \"to\": \"%s\"," +
+                        "  \"type\": \"template\"," +
+                        "  \"template\": {" +
+                        "    \"name\": \"portero_asignado\"," +
+                        "    \"language\": { \"code\": \"es\" }," +
+                        "    \"components\": [" +
+                        "      {" +
+                        "        \"type\": \"body\"," +
+                        "        \"parameters\": [" +
+                        "          { \"type\": \"text\", \"text\": \"%s\" }," +
+                        "          { \"type\": \"text\", \"text\": \"%s\" }," +
+                        "          { \"type\": \"text\", \"text\": \"%s\" }" +
+                        "        ]" +
+                        "      }" +
+                        "    ]" +
+                        "  }" +
+                        "}",
+                numCelular, nombreStaff, nombreEvento, nombreRemitente
+        );
+        httpClient.post(apiUrl, jsonPayload, token);
+
+    }
+
+
 }
