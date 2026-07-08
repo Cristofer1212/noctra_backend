@@ -19,7 +19,7 @@ public class WhatsappService implements IWhatsappService {
     }
 
     @Override
-    public void sendInvitation(String phoneNumber, String qrUrl) {
+    public void sendInvitation(String phoneNumber, String qrUrl, String nombre, String evento, String fechaInicio, String fechaFin) {
         // Aquí construyes el JSON para él, témplate aprobado por Meta
         String jsonPayload = String.format("""
             {
@@ -27,11 +27,30 @@ public class WhatsappService implements IWhatsappService {
                 "to": "%s",
                 "type": "template",
                 "template": {
-                    "name": "hello_world", 
-                    "language": { "code": "en_US" }
+                    "name": "bievenida_qr",
+                    "language": { "code": "es" },
+                    "components": [
+                        {
+                            "type": "header",
+                            "parameters": [
+                                { "type": "image", "image": { "link": "%s" } }
+                            ]
+                        },
+                        {
+                            "type": "body",
+                            "parameters": [
+                                { "type": "text", "text": "%s" },
+                                { "type": "text", "text": "%s" },
+                                { "type": "text", "text": "%s" },
+                                { "type": "text", "text": "%s" },
+                                { "type": "text", "text": "%s" },
+                                { "type": "text", "text": "%s" }
+                            ]
+                        }
+                    ]
                 }
             }
-            """, phoneNumber);
+            """, phoneNumber, qrUrl, nombre, evento, fechaInicio, fechaFin, fechaInicio, fechaFin);
 
         httpClient.post(apiUrl, jsonPayload, token);
     }

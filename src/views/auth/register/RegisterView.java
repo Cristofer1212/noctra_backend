@@ -15,6 +15,9 @@ public class RegisterView extends JFrame {
 
     private final UserService userService;
 
+    // Variables para acceder a los datos desde el Controller
+    private CustomTextField txtNickname, txtNombres, txtApellidos, txtDni, txtPhone, txtPin;
+
     public RegisterView(UserService userService) {
         this.userService = userService;
 
@@ -28,22 +31,51 @@ public class RegisterView extends JFrame {
         panel.setBackground(CELESTE_FONDO);
         setContentPane(panel);
 
-        JLabel titulo = new JLabel("Registro");
-        titulo.setFont(new Font("SansSerif", Font.PLAIN, 40));
+        // Título principal
+        JLabel titulo = new JLabel("Registrarse");
+        titulo.setFont(new Font("SansSerif", Font.BOLD, 40));
         titulo.setForeground(TEXTO_OSCURO);
-        titulo.setBounds(280, 130, 300, 60);
+        titulo.setBounds(650, 50, 300, 60);
         panel.add(titulo);
 
-        JLabel nota = new JLabel("(Pantalla de registro en construcción — Cristian completa esto)");
-        nota.setFont(new Font("SansSerif", Font.ITALIC, 14));
-        nota.setForeground(TEXTO_OSCURO);
-        nota.setBounds(80, 200, 500, 25);
-        panel.add(nota);
+        // Configuración de posiciones para los campos
+        int x = 550; // Posición X centrada
+        int y = 130; // Posición inicial Y
+        int gap = 75; // Espacio entre campos
 
+        txtNickname  = crearCampo(panel, "NickName", x, y);
+        txtNombres   = crearCampo(panel, "Nombres", x, y + gap);
+        txtApellidos = crearCampo(panel, "Apellidos", x, y + gap * 2);
+        txtDni       = crearCampo(panel, "DNI", x, y + gap * 3);
+        txtPhone     = crearCampo(panel, "Phone", x, y + gap * 4);
+        txtPin       = crearCampo(panel, "Pin", x, y + gap * 5);
+
+        // Botón Registrarse
+        CustomButton btnRegistrar = new CustomButton("Registrarse", AZUL_BOTON);
+        btnRegistrar.setBounds(x + 100, y + gap * 6, 200, 45);
+        panel.add(btnRegistrar);
+
+        // Botón Volver (lo mantuve según tu diseño original)
         CustomButton volverBtn = new CustomButton("Volver al login", AZUL_BOTON);
-        volverBtn.setBounds(80, 300, 220, 45);
+        volverBtn.setBounds(50, 50, 200, 45);
         panel.add(volverBtn);
 
         volverBtn.addActionListener(e -> dispose());
+    }
+
+    /**
+     * Método auxiliar para crear etiquetas y campos de texto de forma ordenada
+     */
+    private CustomTextField crearCampo(JPanel panel, String labelText, int x, int y) {
+        JLabel lbl = new JLabel(labelText);
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 14));
+        lbl.setForeground(TEXTO_OSCURO);
+        lbl.setBounds(x, y - 25, 200, 20);
+        panel.add(lbl);
+
+        CustomTextField field = new CustomTextField();
+        field.setBounds(x, y, 400, 40);
+        panel.add(field);
+        return field;
     }
 }

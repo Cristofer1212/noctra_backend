@@ -1,6 +1,11 @@
 package config;
 
 import com.sun.net.httpserver.HttpServer;
+
+import modules.event.controller.EventController;
+import modules.event.repository.EventRepository;
+import modules.event.repository.IEventRepository;
+import modules.event.service.EventService;
 import modules.guest.repository.GuestRepository;
 import modules.guest.repository.IGuestRepository;
 import modules.guest.service.GuestService;
@@ -26,40 +31,41 @@ import modules.user.validator.UserValidator;
 
 public class AppRouter {
 
-    public static void configure(HttpServer server) {
+  public static void configure(HttpServer server) {
 
+    // User Module
+    IUserRepository IUserRepository = new UserRepository();
+    UserValidator validator = new UserValidator();
+    UserMapper mapper = new UserMapper();
+    UserService userService = new UserService(IUserRepository, validator, mapper);
+    UserController userController = new UserController(userService);
 
-        // User Module
-        IUserRepository IUserRepository = new UserRepository();
-        UserValidator validator = new UserValidator();
-        UserMapper mapper = new UserMapper();
-        UserService userService = new UserService(IUserRepository, validator, mapper);
-        UserController userController = new UserController(userService);
+    // Invitation Module
+    IInvitationRepository invitationRepository = new InvitationRepository();
+    IGuestRepository guestRepository = new GuestRepository();
+    GuestService guestService = new GuestService(guestRepository);
+    ICloudinaryService cloudinaryService = new CloudinaryService();
+    HttpClientWrapper httpClient = new HttpClientWrapper();
+    IWhatsappService whatsappService = new WhatsappService(httpClient);
+    InvitationService invitationService = new InvitationService(guestService, invitationRepository, cloudinaryService,
+        whatsappService);
+    InvitationController invitationController = new InvitationController(invitationService);
 
+    // Event Module
+    IEventRepository eventRepository = new EventRepository();
+    EventService eventService = new EventService(eventRepository);
+    EventController eventController = new EventController(eventService);
 
-        // Invitation Module
-        IInvitationRepository invitationRepository = new InvitationRepository();
-        IGuestRepository guestRepository = new GuestRepository();
-        GuestService guestService = new GuestService(guestRepository);
-        ICloudinaryService cloudinaryService = new CloudinaryService();
-        HttpClientWrapper httpClient = new HttpClientWrapper();
-        IWhatsappService whatsappService = new WhatsappService(httpClient);
-        InvitationService invitationService = new InvitationService(guestService, invitationRepository, cloudinaryService,whatsappService );
-        InvitationController invitationController = new InvitationController(invitationService);
+    // ... al final de tu método configure
+    IWebhookHandler webhookHandler = new WebhookHandler();
+    WebhookController webhookController = new WebhookController(webhookHandler);
 
-        // ... al final de tu método configure
-        IWebhookHandler webhookHandler = new WebhookHandler();
-        WebhookController webhookController = new WebhookController(webhookHandler);
+    server.createContext("/api/webhook", webhookController);
 
-        server.createContext("/api/webhook", webhookController);
+    // crear la ruta para postman
+    server.createContext("/users", userController);
+    server.createContext("/invitations", invitationController);
+    server.createContext("/event", eventController);
 
-
-
-        // crear la ruta para postman
-        server.createContext("/users", userController);
-        server.createContext("/invitations", invitationController);
-
-
-
-    }
+  }
 }
