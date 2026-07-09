@@ -16,7 +16,7 @@ public class WebhookHandler implements IWebhookHandler {
 
     @Override
     public void handleIncomingMessage(String payload) {
-        // Aquí procesarás los mensajes entrantes más adelante
+        // Aquí procesarás los mensajes entrantes en la semana 17
         System.out.println("Evento recibido: " + payload);
 
     }

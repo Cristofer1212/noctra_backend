@@ -1,0 +1,14 @@
+# Ajusta los datos de conexión para MySQL
+db.url=jdbc:mysql://localhost:3306/Noctra_MVP?useSSL=false&serverTimezone=UTC
+db.user=root
+db.password=root
+# URL pública para los códigos QR (generada por ngrok)
+app.base.url=https://hollowly-nondemocratic-anabella.ngrok-free.dev
+# Cloudinary
+cloudinary.cloud_name=drth2bosy
+cloudinary.api_key=795931771496958
+cloudinary.api_secret=OO7Y9P87npUFRaiRQglQcy5NGSg
+# WhatsApp API Meta
+whatsapp.api.url=https://graph.facebook.com/v20.0/1193559573841526/messages
+whatsapp.access.token=EAAWi5Yf7h8kBR0zQnEDjSz7bB7Pm02ZBjoNpixfnQTS7Q3j4cBKyFylzIop1NI0IhUxYOuXA9BsohUD0DIOGeyZBsoamyyZBzZB0FoyS8lc7GPNCwo8n1E0qQmVf0SvS0FZA9gPku2wKZAs8z0f4M08Lb1rlJan8MD9ltkoZAUWTAnNIZAxzJc9MXjhP1CWaZBiE4AGHKD2j85r8ZCHmmVCPlIZASYBuovOXwSuxQSZCGEF8sUyY6kNj7aRzzzxhifGbKTQpI9pD2Amui9E49s3lxBWymJ89h8FAMNTztygoAwZDZD
+whatsapp.phone.number.id=1193559573841526

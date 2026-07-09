@@ -5,6 +5,7 @@ import views.auth.register.RegisterView;
 import views.components.CustomButton;
 import views.components.CustomTextField;
 import views.components.NeonLabel;
+import views.dashboard.DashboardView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -100,8 +101,18 @@ public class LoginView extends JFrame {
                         "Error de login",
                         JOptionPane.ERROR_MESSAGE
                 );
+                return;
             }
-            // TODO: si exito == true, aquí abres la siguiente ventana (dashboard/home)
+
+            // Login exitoso -> abrimos el Dashboard y cerramos el login.
+            // TODO: reemplazar "id" por el nombre real del usuario cuando
+            // UserService/User expongan un campo de nombre (por ahora se
+            // muestra el mismo ID/nickname con el que se logueó).
+            // TODO: reemplazar el 0 por la cantidad real de notificaciones
+            // cuando exista ese servicio.
+            DashboardView dashboardView = new DashboardView(id, 0);
+            dashboardView.setVisible(true);
+            dispose();
         });
 
         JLabel registroLabel = crearTextoRegistro();

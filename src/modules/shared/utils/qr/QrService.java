@@ -22,7 +22,7 @@ public class QrService implements IQrService {
             // 1. Convertir en imagen original
             BufferedImage originalImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
 
-            // 2. CAMBIO CRÍTICO: Crear una nueva imagen tipo RGB (sin transparencia)
+            // 2. Crear una nueva imagen tipo RGB
             BufferedImage rgbImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 
             // 3. Dibujar la original sobre el fondo blanco sólido
@@ -30,7 +30,7 @@ public class QrService implements IQrService {
 
             // 4. Convertir a bytes usando la imagen RGB
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(rgbImage, "jpg", baos); // Cambiado a "jpg" para mayor compatibilidad con Meta
+            ImageIO.write(rgbImage, "jpg", baos); // Cambiado a "jpg" para  compatibilidad con Meta
 
             // retorna en formato base 64
             return Base64.getEncoder().encodeToString(baos.toByteArray());

@@ -14,10 +14,9 @@ public class CloudinaryService implements ICloudinaryService {
     private final Cloudinary cloudinary;
 
     public CloudinaryService() {
-        // Aquí configuras tus credenciales.
-        // TIP: Lo ideal es que estos datos vengan de tu archivo config.properties
+        // Configurar credenciales
 
-        String name = ConfigLoader.getProperty("cloudinary.cloud_name"); // Fíjate en el nombre de la clave
+        String name = ConfigLoader.getProperty("cloudinary.cloud_name");
         String key = ConfigLoader.getProperty("cloudinary.api_key");
         String secret = ConfigLoader.getProperty("cloudinary.api_secret");
 
@@ -26,12 +25,12 @@ public class CloudinaryService implements ICloudinaryService {
         System.out.println("API Key desde config: '" + key + "'");
         System.out.println("API Secret desde config: '" + secret + "'");
 
-        // Vamos a asignar los valores directamente a variables para limpiar cualquier residuo
+        // Asignación de valores a variables
         String cloudName = ConfigLoader.getProperty("cloudinary.cloud_name");
         String apiKey = ConfigLoader.getProperty("cloudinary.api_key");
         String apiSecret = ConfigLoader.getProperty("cloudinary.api_secret");
 
-        // Construimos el mapa explícitamente
+        // Construimos explícitamente
         java.util.Map<String, String> config = new java.util.HashMap<>();
         config.put("cloud_name", cloudName);
         config.put("api_key", apiKey);
@@ -50,7 +49,7 @@ public class CloudinaryService implements ICloudinaryService {
 
             Map uploadResult = cloudinary.uploader().upload(dataUri, ObjectUtils.asMap(
                     "public_id", publicId,
-                    "folder", "invitations" // Opcional: organiza tus archivos en carpetas
+                    "folder", "invitations" //  organizar  archivos en carpetas
             ));
 
             return (String) uploadResult.get("secure_url");
