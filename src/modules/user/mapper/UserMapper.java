@@ -22,8 +22,6 @@ public class UserMapper {
         user.setAddress(null);
         user.setMail(null);
         user.setState("Active");
-        // ¡AQUÍ ES DONDE ESTÁ EL FALLO!
-        // Asegúrate de que esta línea exista en el Mapper:
         user.setNickname(userRegistrationDto.getNickname());
 
         return user;

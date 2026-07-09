@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 
 public class HttpUtils {
 
-    // estudiar
 
     public static void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
