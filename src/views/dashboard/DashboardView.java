@@ -1,10 +1,14 @@
 package views.dashboard;
 
 import modules.event.model.Event;
+import views.auth.login.LoginView;
 import views.components.*;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -23,6 +27,12 @@ public class DashboardView extends JFrame {
     private final String nombreUsuario;
     private final int cantidadNotificaciones;
 
+    private final CardLayout cardLayout = new CardLayout();
+    private final JPanel panelTarjetas = new JPanel(cardLayout);
+    private JPanel panelEventosActual;
+    private SidebarItem itemEventos;
+    private SidebarItem itemColaboradores;
+
     public DashboardView(String nombreUsuario, int cantidadNotificaciones) {
         this.nombreUsuario = nombreUsuario;
         this.cantidadNotificaciones = cantidadNotificaciones;
@@ -33,9 +43,27 @@ public class DashboardView extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
+        panelTarjetas.setOpaque(false);
+        panelEventosActual = crearPanelEventos();
+        panelTarjetas.add(panelEventosActual, "EVENTOS");
+        panelTarjetas.add(new ColaboradoresPanel(), "COLABORADORES");
+
         add(crearBarraSuperior(), BorderLayout.NORTH);
         add(crearBarraLateral(), BorderLayout.WEST);
-        add(crearPanelContenido(), BorderLayout.CENTER);
+        add(panelTarjetas, BorderLayout.CENTER);
+    }
+
+    // Se llama después de agregar un evento nuevo (desde NuevoEventoView), para que
+    // aparezca de inmediato en "Activos" o "Próximos" sin tener que reiniciar la app.
+    public void actualizarEventos() {
+        panelTarjetas.remove(panelEventosActual);
+        panelEventosActual = crearPanelEventos();
+        panelTarjetas.add(panelEventosActual, "EVENTOS");
+        cardLayout.show(panelTarjetas, "EVENTOS");
+        itemEventos.setSeleccionado(true);
+        itemColaboradores.setSeleccionado(false);
+        revalidate();
+        repaint();
     }
 
     // ---------- BARRA SUPERIOR ----------
@@ -56,14 +84,56 @@ public class DashboardView extends JFrame {
         derecha.add(crearNotificacion());
         derecha.add(crearSeparador());
 
+        // Menú desplegable para cerrar sesión
+        JPopupMenu menuUsuario = crearMenuCerrarSesion();
+
         JLabel saludo = new JLabel("<html>Hola, <b>" + nombreUsuario + "</b></html>");
         saludo.setFont(new Font("SansSerif", Font.PLAIN, 18));
         saludo.setForeground(TEXTO_OSCURO);
+        saludo.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        saludo.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                menuUsuario.show(saludo, 0, saludo.getHeight() + 10);
+            }
+        });
         derecha.add(saludo);
-        derecha.add(crearAvatar());
+
+        JComponent avatar = crearAvatar();
+        avatar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        avatar.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                menuUsuario.show(avatar, avatar.getWidth() - menuUsuario.getPreferredSize().width, avatar.getHeight() + 10);
+            }
+        });
+        derecha.add(avatar);
 
         barra.add(derecha, BorderLayout.EAST);
         return barra;
+    }
+
+    private JPopupMenu crearMenuCerrarSesion() {
+        JPopupMenu menu = new JPopupMenu();
+        menu.setBackground(BLANCO);
+        menu.setBorder(new LineBorder(AVATAR_FONDO, 1, true));
+
+        JMenuItem cerrarSesionItem = new JMenuItem("⊗   Cerrar sesión");
+        cerrarSesionItem.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        cerrarSesionItem.setForeground(TEXTO_OSCURO);
+        cerrarSesionItem.setBackground(BLANCO);
+        cerrarSesionItem.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+        cerrarSesionItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        cerrarSesionItem.addActionListener(e -> {
+            // Cierra el Dashboard y regresa al Login
+            LoginView loginView = new LoginView(null); // Pásale tu UserService si te lo pide el constructor
+            loginView.setVisible(true);
+            dispose();
+        });
+
+        menu.add(cerrarSesionItem);
+        return menu;
     }
 
     private JComponent crearNotificacion() {
@@ -129,6 +199,8 @@ public class DashboardView extends JFrame {
 
         SidebarItem eventos = new SidebarItem("\uD83C\uDF77", "Eventos", true);
         SidebarItem colaboradores = new SidebarItem("\uD83D\uDC65", "Colaboradores", false);
+        itemEventos = eventos;
+        itemColaboradores = colaboradores;
 
         eventos.setAlignmentX(Component.LEFT_ALIGNMENT);
         colaboradores.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -136,15 +208,30 @@ public class DashboardView extends JFrame {
         panel.add(eventos);
         panel.add(colaboradores);
 
-        // TODO: agregar MouseListener a cada SidebarItem para cambiar entre
-        // la vista de Eventos y la vista de Colaboradores (CardLayout, por ejemplo)
+        eventos.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cardLayout.show(panelTarjetas, "EVENTOS");
+                itemEventos.setSeleccionado(true);
+                itemColaboradores.setSeleccionado(false);
+            }
+        });
+
+        colaboradores.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cardLayout.show(panelTarjetas, "COLABORADORES");
+                itemColaboradores.setSeleccionado(true);
+                itemEventos.setSeleccionado(false);
+            }
+        });
 
         return panel;
     }
 
     // ---------- CONTENIDO ----------
 
-    private JPanel crearPanelContenido() {
+    private JPanel crearPanelEventos() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(AZUL_FONDO);
@@ -169,8 +256,13 @@ public class DashboardView extends JFrame {
         OutlineButton colaborar = new OutlineButton("Colaborar");
         colaborar.setPreferredSize(new Dimension(220, 45));
 
-        // TODO: nuevoEvento.addActionListener(e -> ...) -> abrir formulario de creación de evento
-        // TODO: colaborar.addActionListener(e -> ...) -> abrir flujo para unirse como colaborador
+        // TODO: reemplazar el JOptionPane por la ventana emergente real cuando la armemos
+        nuevoEvento.addActionListener(e -> {
+            NuevoEventoView nuevoEventoView = new NuevoEventoView();
+            nuevoEventoView.setVisible(true);
+        });
+        colaborar.addActionListener(e ->
+                JOptionPane.showMessageDialog(this, "Función en desarrollo: unirse como colaborador."));
 
         panel.add(nuevoEvento);
         panel.add(colaborar);
@@ -198,12 +290,12 @@ public class DashboardView extends JFrame {
 
         List<JComponent> filasActivos = new ArrayList<>();
         for (int i = 0; i < activos.size(); i++) {
-            filasActivos.add(new EventRowPanel(activos.get(i), true, i < activos.size() - 1));
+            filasActivos.add(crearFilaClickeable(activos.get(i), true, i < activos.size() - 1));
         }
 
         List<JComponent> filasProximos = new ArrayList<>();
         for (int i = 0; i < proximos.size(); i++) {
-            filasProximos.add(new EventRowPanel(proximos.get(i), false, i < proximos.size() - 1));
+            filasProximos.add(crearFilaClickeable(proximos.get(i), false, i < proximos.size() - 1));
         }
 
         CollapsibleSectionPanel seccionActivos = new CollapsibleSectionPanel("Eventos Activos", filasActivos);
@@ -217,6 +309,20 @@ public class DashboardView extends JFrame {
         panel.add(seccionProximos);
 
         return panel;
+    }
+
+    // Envuelve cada EventRowPanel con el click que abre el detalle del evento.
+    private JComponent crearFilaClickeable(Event evento, boolean esActivo, boolean mostrarLinea) {
+        EventRowPanel fila = new EventRowPanel(evento, esActivo, mostrarLinea);
+        fila.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        fila.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                EventDetailView detalle = new EventDetailView(evento);
+                detalle.setVisible(true);
+            }
+        });
+        return fila;
     }
 
     // ---------- DATOS DE EJEMPLO (solo para maquetar, sacar cuando exista EventService) ----------

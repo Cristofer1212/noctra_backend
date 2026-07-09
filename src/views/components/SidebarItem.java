@@ -10,7 +10,7 @@ public class SidebarItem extends JPanel {
     private static final Color TEXTO = new Color(0x2A, 0x2A, 0x2A);
     private static final Color BARRA_LATERAL = new Color(0x3E, 0x6B, 0x84);
 
-    private final boolean seleccionado;
+    private boolean seleccionado;
 
     public SidebarItem(String icono, String texto, boolean seleccionado) {
         this.seleccionado = seleccionado;
@@ -30,6 +30,13 @@ public class SidebarItem extends JPanel {
         etiquetaTexto.setFont(new Font("SansSerif", Font.PLAIN, 18));
         etiquetaTexto.setForeground(TEXTO);
         add(etiquetaTexto, BorderLayout.CENTER);
+    }
+
+    // Permite cambiar cuál item se ve "seleccionado" después de creado
+    // (necesario para el CardLayout: al hacer clic en uno, se desmarca el otro).
+    public void setSeleccionado(boolean seleccionado) {
+        this.seleccionado = seleccionado;
+        repaint();
     }
 
     @Override
