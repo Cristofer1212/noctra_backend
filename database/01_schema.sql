@@ -71,6 +71,7 @@ CREATE TABLE invitation (
                             token VARCHAR(255) NOT NULL UNIQUE,
                             code_qr VARCHAR(255) NOT NULL,
                             state VARCHAR(50) DEFAULT 'SIN_USAR' NOT NULL,
+                            type_of_guest ENUM('guest', 'admin', 'collaborator') NOT NULL,
                             created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
                             sent_at DATETIME NULL,
                             read_at DATETIME NULL,
