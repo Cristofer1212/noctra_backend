@@ -48,18 +48,18 @@ public class InvitationController implements HttpHandler {
 
 
     public void handleInvite(HttpExchange exchange) throws IOException {
-        System.out.println("DEBUG: Iniciando handleInvite en InvitationController"); // Log de entrada
+        System.out.println("DEBUG: Iniciando handleInvite en InvitationController");
         try {
             String json = HttpUtils.readRequestBody(exchange);
-            System.out.println("DEBUG: JSON recibido: " + json); // Ver qué llega
+            System.out.println("DEBUG: JSON recibido: " + json);
 
             SendInvitationDto sendInvitationDto = JsonUtils.fromJson(json, SendInvitationDto.class);
             invitationService.createInvitation(sendInvitationDto);
 
             HttpUtils.sendResponse(exchange, 201, "{\"message\": \"Invitación creada exitosamente\"}");
-        } catch (Throwable t) { // Capturamos Throwable para ver errores graves o errores de carga
+        } catch (Throwable t) {
             System.err.println("ERROR FATAL CAPTURADO:");
-            t.printStackTrace(); // Esto DEBE salir en tu consola
+            t.printStackTrace();
             HttpUtils.sendResponse(exchange, 500, "{\"error\": \"" + t.getMessage() + "\"}");
         }
         try {

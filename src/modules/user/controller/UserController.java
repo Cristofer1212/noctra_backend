@@ -28,14 +28,14 @@ public class UserController implements HttpHandler {
   @Override
   // Gemini
   public void handle(HttpExchange exchange) throws IOException {
-    String method = exchange.getRequestMethod();
-    String path = exchange.getRequestURI().getPath();
+    String method = exchange.getRequestMethod(); // Devuelve "GET", "POST", "PUT", "DELETE", etc.
+    String path = exchange.getRequestURI().getPath(); // Devuelve la str+ing de una url, sin dominio, sin otros parametros. Ej. /api/portero/validar
 
-    // Configurar cabecera para responder siempre en formato JSON
+    // Para que postman sepa leer la respuesta
     exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
 
     try {
-      // 📬 1. RUTA PARA REGISTRAR (POST /users)
+
       if ("POST".equalsIgnoreCase(method) && "/users".equals(path)) {
         handleRegister(exchange);
       }
@@ -45,7 +45,7 @@ public class UserController implements HttpHandler {
         handleLogin(exchange);
       }
 
-      // ❌ RUTA NO ENCONTRADA
+
       else {
         HttpUtils.sendResponse(exchange, 404, "{\"message\": \"Ruta no encontrada en Noctra\"}");
       }
@@ -72,7 +72,7 @@ public class UserController implements HttpHandler {
     } catch (Exception e) {
       System.out.println("DEBUG: Entré al catch del controlador!"); // Añade esta línea
       e.printStackTrace();
-      // 2. MANDA EL MENSAJE REAL A POSTMAN (no un mensaje fijo)
+
       HttpUtils.sendResponse(exchange, 500, "{\"error\": \"" + e.toString() + "\"}");
 
     }
@@ -85,7 +85,7 @@ public class UserController implements HttpHandler {
       // JSON to Dto.
       LoginDto loginDto = JsonUtils.fromJson(json, LoginDto.class);
       boolean isAuthenticated = userService.login(loginDto.getNickname(), loginDto.getPin());
-      // 4. Responder según el resultado
+      // Responder según el resultado
       if (isAuthenticated) {
         HttpUtils.sendResponse(exchange, 200, "{\"message\": \"Login exitoso\"}");
       } else {
