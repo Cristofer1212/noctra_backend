@@ -39,10 +39,8 @@ public class Main {
 
             HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
-            // 1. REGISTRO DEL WEBHOOK (Indispensable para que Meta conecte)
             server.createContext("/webhook", new WebhookController(new WebhookHandler()));
 
-            // 2. TUS OTRAS RUTAS (Asegúrate de que AppRouter no use el path /webhook)
             AppRouter.configure(server);
 
             server.setExecutor(null);
