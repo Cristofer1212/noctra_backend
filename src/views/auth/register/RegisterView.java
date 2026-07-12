@@ -42,6 +42,11 @@ public class RegisterView extends JFrame {
         nicknameLabel.setBounds(140, 540, 300, 22);
         panel.add(nicknameLabel);
 
+        JTextField nicknameField = new JTextField(); // Nuevo campo
+        CustomTextField.estilizarConBorde(nicknameField);
+        nicknameField.setBounds(140, 565, 460, 42);
+        panel.add(nicknameField);
+
         // Botón discreto de Volver al Login
         JLabel volver = crearBotonVolver();
         volver.setBounds(140, 20, 150, 25);
@@ -99,17 +104,18 @@ public class RegisterView extends JFrame {
         panel.add(repetirPinField);
 
         CustomButton registrarseBtn = new CustomButton("Registrarse", AZUL_BOTON);
-        registrarseBtn.setBounds(250, 560, 240, 50);
+        registrarseBtn.setBounds(250, 620, 240, 50);
         panel.add(registrarseBtn);
 
         registrarseBtn.addActionListener(e -> {
             String nombres = nombresField.getText().trim();
             String apellidos = apellidosField.getText().trim();
             String dni = dniField.getText().trim();
+            String nickname = nicknameField.getText().trim(); // Captura el nuevo campo
             String pin = new String(pinField.getPassword());
             String repetirPin = new String(repetirPinField.getPassword());
 
-            String error = controller.registrar(nombres, apellidos, dni, pin, repetirPin);
+            String error = controller.registrar(nombres, apellidos, dni, nickname, pin, repetirPin);
             if (error != null) {
                 JOptionPane.showMessageDialog(this, error, "Error de registro", JOptionPane.ERROR_MESSAGE);
             } else {
