@@ -38,6 +38,10 @@ public class RegisterView extends JFrame {
         JPanel panel = new JPanel(null);
         panel.setBackground(Color.WHITE);
 
+        JLabel nicknameLabel = crearEtiqueta("Nickname"); // Nuevo label
+        nicknameLabel.setBounds(140, 540, 300, 22);
+        panel.add(nicknameLabel);
+
         // Botón discreto de Volver al Login
         JLabel volver = crearBotonVolver();
         volver.setBounds(140, 20, 150, 25);
