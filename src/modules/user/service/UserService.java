@@ -45,4 +45,22 @@ public class UserService {
     return BCrypt.checkpw(pin, user.getPassword());
   }
 
+
+  public Optional<User> findById(Integer id) throws DatabaseConnectionException {
+     return IUserRepository.findById(id);
+  }
+
+
+  public Optional<User> findByDni(String dni) throws DatabaseConnectionException {
+
+    return IUserRepository.findByDni(dni);
+  }
+
+  // Si también necesitas buscar por nickname en otros módulos, puedes delegarlo así:
+  public Optional<User> findByNickname(String nickname) throws DatabaseConnectionException {
+    return IUserRepository.findByNickname(nickname);
+  }
+
+
+
 }

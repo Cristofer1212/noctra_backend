@@ -12,32 +12,26 @@ public class InvitationRepository implements IInvitationRepository {
 
     @Override
     public void save(Invitation invitation) throws DatabaseConnectionException {
-        System.out.println("DEBUG: Entrando al método save del repositorio...");
-        System.out.println("DEBUG: Datos a guardar: Token=" + invitation.getToken() + ", QR=" + invitation.getCodeQr());
+        // 1. Asegúrate de que issuer_user_id esté en la lista
+        String sql = "INSERT INTO invitation (issuer_user_id, guest_id, token, code_qr, state, created_at) VALUES (?, ?, ?, ?, ?, ?)";
 
-        String sql = "INSERT INTO noctra_mvp.invitation (guest_id, code_qr, token) VALUES (?, ?, ?)";
+        try (Connection connection = DbConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-        try(Connection connection = DbConnection.getConnection();
-            CallableStatement callableStatement = connection.prepareCall(sql);
-        ) {
-            // callableStatement.setInt(1, invitation.getEventId());
-            // callableStatement.setInt(2, invitation.getIssuerUserId());
-            callableStatement.setInt(1, invitation.getGuestId());
-            callableStatement.setString(2, invitation.getCodeQr());
-            callableStatement.setString(3, invitation.getToken()); // Asignamos el valor del token
+            // 2. Aquí es donde se asigna el ID. ¡Verifica que el índice sea correcto!
+            stmt.setInt(1, invitation.getIssuerUserId()); // <-- ESTO ES LO QUE TIENE QUE LLEGAR
+            stmt.setInt(2, invitation.getGuestId());
+            stmt.setString(3, invitation.getToken());
+            stmt.setString(4, invitation.getCodeQr());
+            stmt.setString(5, invitation.getState());
+            stmt.setObject(6, invitation.getCreatedAt());
 
-            callableStatement.executeUpdate(); // EJECUTA INSERT
-
-            System.out.println("DEBUG: ¡ÉXITO! Registro insertado correctamente.");
-
+            stmt.executeUpdate();
+            System.out.println("DEBUG: Guardado exitoso con issuer_user_id: " + invitation.getIssuerUserId());
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new DatabaseConnectionException("Eror el regitrar evento" + invitation.getEventId() );
+            throw new DatabaseConnectionException("Error al guardar: " + e.getMessage());
         }
-
-
     }
-
     @Override
     public Optional<Invitation> findByToken(String token) throws DatabaseConnectionException {
         String sql = "SELECT * FROM noctra_mvp.invitation WHERE token = ?";

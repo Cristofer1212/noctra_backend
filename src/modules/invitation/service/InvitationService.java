@@ -16,6 +16,7 @@ import modules.shared.integrations.whatsapp.IWhatsappService;
 import modules.shared.integrations.whatsapp.WhatsappService;
 import modules.shared.utils.qr.IQrService;
 import modules.shared.utils.qr.QrService;
+import modules.user.service.UserService;
 
 public class InvitationService {
 
@@ -23,23 +24,26 @@ public class InvitationService {
     private final IInvitationRepository invitationRepository;
     private final ICloudinaryService cloudinaryService;
     private final IWhatsappService whatsappService;
-
+    private final UserService userService;
     public InvitationService(
             GuestService guestService,
             IInvitationRepository invitationRepository,
             ICloudinaryService cloudinaryService,
-            IWhatsappService whatsappService
+            IWhatsappService whatsappService,
+            UserService userService
+
 
     ) {
         this.guestService = guestService;
         this.invitationRepository = invitationRepository;
         this.cloudinaryService = cloudinaryService;
         this.whatsappService = whatsappService;
+        this.userService = userService;
     }
 
     // Crear Invitación
-    public void createInvitation(SendInvitationDto sendInvitationDto) throws DatabaseConnectionException {
-
+    public void createInvitation(SendInvitationDto sendInvitationDto, Integer issuerUserId) throws DatabaseConnectionException {
+        System.out.println("DEBUG (Service): ID recibido en createInvitation es: " + issuerUserId);
         try {
             // 1. Validar que quien invite existe
 
@@ -57,11 +61,15 @@ public class InvitationService {
 
             // 6. Crear invitación (Objeto Invitation - Ticket)
             Guest guest = guestService.createGuest(sendInvitationDto.getPhoneGuest(), sendInvitationDto.getGender());
+
             Invitation invitation = InvitationFactory.create(
                     guest.getId(),
                     token,
-                    codigo_qr
+                    codigo_qr,
+                    issuerUserId
             );
+
+
 
 
             // 7. Generar QR en base64 (PNG)
@@ -75,8 +83,7 @@ public class InvitationService {
             invitation.setCodeQr(qrUrl);
             invitationRepository.save(invitation);
             // Enviar Ticket al wsp del invitado
-            sendWhatsAppInvitation(sendInvitationDto.getPhoneGuest(), invitation.getCodeQr());
-        } catch (Exception e) {
+            sendWhatsAppInvitation(sendInvitationDto.getPhoneGuest(), invitation, issuerUserId);        } catch (Exception e) {
             // Imprime el error real en la consola de tu IDE
             System.err.println("ERROR CRÍTICO EN SERVICE:");
             e.printStackTrace();
@@ -89,20 +96,29 @@ public class InvitationService {
 
 
 
-    // Modifica este método en tu clase InvitationService
-    public void sendWhatsAppInvitation(String phoneNumber, String qrUrl) {
-        // Aquí obtienes los datos necesarios.
-        // Asegúrate de que tu modelo Invitation tenga estos getters.
-        // Si no los tiene, agrégalos o recupéralos de otro servicio.
+    // Modifica este metodo en tu clase InvitationService
+// Cambia la firma aquí
+    public void sendWhatsAppInvitation(String phoneNumber, Invitation invitation, Integer issuerUserId) throws DatabaseConnectionException {
+        String nombre = "Usuario";
 
-        String nombre = "Cristofer"; // O invitation.getGuest().getName();
-        String evento = "POO"; // O invitation.getEvent().getName();
-        String fechaInicio = "Hoy";   // O format(invitation.getEvent().getStartDate());
-        String fechaFin = "Mañana";   // O format(invitation.getEvent().getEndDate());
+        try {
+            // Usamos el ID que ya tenemos en la mano
+            if (issuerUserId != null) {
+                var userOptional = userService.findById(issuerUserId);
+                if (userOptional.isPresent()) {
+                    nombre = userOptional.get().getName();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error al buscar el nombre del emisor: " + e.getMessage());
+        }
 
-        // Ahora pasas los 6 parámetros requeridos
-        whatsappService.sendInvitation(phoneNumber, qrUrl, nombre, evento, fechaInicio, fechaFin);
+        String evento = "POO";
+        String fechaInicio = "Hoy";
+        String fechaFin = "Mañana";
+
+        // Pasas invitation.getCodeQr() porque el metodo whatsappService necesita el String de la URL
+        whatsappService.sendInvitation(phoneNumber, invitation.getCodeQr(), nombre, evento, fechaInicio, fechaFin);
     }
-
 
 }

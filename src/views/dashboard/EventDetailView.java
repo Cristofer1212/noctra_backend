@@ -1,6 +1,7 @@
 package views.dashboard;
 
 import modules.event.model.Event;
+import modules.invitation.service.InvitationService;
 import views.components.IndicatorRow;
 import views.components.OutlineButton;
 
@@ -234,8 +235,12 @@ public class EventDetailView extends JFrame {
             AddStaffView staffView = new AddStaffView(event);
             staffView.setVisible(true);
         });
-        btnInvitados.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Función en desarrollo: agregar invitados."));
+        btnInvitados.addActionListener(e -> {
+            // Pasamos 'this' porque EventDetailView es un JFrame (una ventana válida)
+            SendInvitationView modalInvitacion = new SendInvitationView(this);
+            SendInvitationController controladorInvitacion = new SendInvitationController(modalInvitacion);
+            controladorInvitacion.mostrar();
+        });
 
         contenedor.add(filaSuperior);
         contenedor.add(Box.createRigidArea(new Dimension(0, 12)));

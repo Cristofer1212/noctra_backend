@@ -48,7 +48,7 @@ public class AppRouter {
         ICloudinaryService cloudinaryService = new CloudinaryService();
         HttpClientWrapper httpClient = new HttpClientWrapper();
         IWhatsappService whatsappService = new WhatsappService(httpClient);
-        InvitationService invitationService = new InvitationService(guestService, invitationRepository, cloudinaryService,whatsappService );
+        InvitationService invitationService = new InvitationService(guestService, invitationRepository, cloudinaryService,whatsappService, userService );
         InvitationController invitationController = new InvitationController(invitationService);
 
         // Portero Module

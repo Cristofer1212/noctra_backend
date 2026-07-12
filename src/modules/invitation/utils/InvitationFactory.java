@@ -6,11 +6,11 @@ import java.time.LocalDateTime;
 
 public class InvitationFactory {
 
-    public static Invitation create(Integer guestId,String token, String codeQr) {
+    public static Invitation create(Integer guestId,String token, String codeQr, Integer issuerUserID) {
         Invitation ticket = new Invitation();
         // Asignación de IDs (Temporalmente hardcodeados hasta integración con otros módulos)
         ticket.setEventId(1);
-        ticket.setIssuerUserId(1);
+        ticket.setIssuerUserId(issuerUserID);
         // Asignación de datos reales
         ticket.setGuestId(guestId);
         ticket.setToken(token);

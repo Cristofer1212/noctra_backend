@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class UserController implements HttpHandler {
   private final UserService userService;
   private static final Logger LOGGER = Logger.getLogger(UserController.class.getName()); // estudiar
-
+  public static Integer idUsuarioLogueado;
   // constructor
   public UserController(UserService userService) {
     this.userService = userService;
@@ -87,6 +87,10 @@ public class UserController implements HttpHandler {
       boolean isAuthenticated = userService.login(loginDto.getNickname(), loginDto.getPin());
       // Responder según el resultado
       if (isAuthenticated) {
+        Optional<User> userOpt = userService.findByNickname(loginDto.getNickname());
+        if (userOpt.isPresent()) {
+          idUsuarioLogueado = userOpt.get().getId(); // Guardamos el ID globalmente
+        }
         HttpUtils.sendResponse(exchange, 200, "{\"message\": \"Login exitoso\"}");
       } else {
         HttpUtils.sendResponse(exchange, 401, "{\"error\": \"DNI o PIN incorrecto\"}");
