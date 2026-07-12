@@ -6,6 +6,7 @@ import modules.invitation.dto.SendInvitationDto;
 import modules.invitation.service.InvitationService;
 import modules.shared.http.HttpUtils;
 import modules.shared.json.JsonUtils;
+import modules.user.controller.UserController;
 import modules.user.service.UserService;
 
 import java.io.IOException;
@@ -49,37 +50,34 @@ public class InvitationController implements HttpHandler {
 
     public void handleInvite(HttpExchange exchange) throws IOException {
         System.out.println("DEBUG: Iniciando handleInvite en InvitationController");
+
         try {
+            // 1. Leer el cuerpo UNA SOLA VEZ
             String json = HttpUtils.readRequestBody(exchange);
             System.out.println("DEBUG: JSON recibido: " + json);
 
+            // 2. Convertir JSON a DTO
             SendInvitationDto sendInvitationDto = JsonUtils.fromJson(json, SendInvitationDto.class);
-            invitationService.createInvitation(sendInvitationDto);
 
+            // 3. Obtener el ID del emisor (issuerUserId) del contexto de la sesión
+            // Como no tienes clase de sesión, aquí lo sacas de donde tengas guardado al usuario logueado
+            Integer idEmisor = UserController.idUsuarioLogueado; // <--- AQUÍ DEBES PONER EL ID DEL USUARIO REAL QUE HIZO LOGIN
+            if (idEmisor == null) {
+                HttpUtils.sendResponse(exchange, 401, "{\"error\": \"Usuario no autenticado\"}");
+                return;
+            }
+            // 4. Llamar al servicio pasando el DTO Y el contexto (emisor)
+            // Nota: Ajusta tu createInvitation en el Service para recibir estos parámetros
+            invitationService.createInvitation(sendInvitationDto, idEmisor);
+
+            // 5. Enviar respuesta exitosa
             HttpUtils.sendResponse(exchange, 201, "{\"message\": \"Invitación creada exitosamente\"}");
+
         } catch (Throwable t) {
+            // 6. Manejo centralizado de errores
             System.err.println("ERROR FATAL CAPTURADO:");
             t.printStackTrace();
             HttpUtils.sendResponse(exchange, 500, "{\"error\": \"" + t.getMessage() + "\"}");
         }
-        try {
-            // String a jSON
-            String json = HttpUtils.readRequestBody(exchange);
-            // JSON a DTO
-            SendInvitationDto sendInvitationDto = JsonUtils.fromJson(json, SendInvitationDto.class);
-            // DTO --> Service
-            invitationService.createInvitation(sendInvitationDto);
-            // Respuesta de éxito
-            HttpUtils.sendResponse(exchange, 201, "{\"message\": \"Invitación creada exitosamente\"}");
-
-
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            HttpUtils.sendResponse(exchange, 500, "{\"error\": \"" + e.toString() + "\"}");
-        }
-
     }
-
 }

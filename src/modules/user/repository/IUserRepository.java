@@ -16,4 +16,7 @@ public interface IUserRepository {
 
   Optional<User> findByNickname(String nickname) throws DatabaseConnectionException;
 
+  void findByPhone(String phone) throws DatabaseConnectionException;
+
+  Optional<User> findById(Integer id) throws DatabaseConnectionException;
 }
