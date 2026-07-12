@@ -65,10 +65,10 @@ public class LoginView extends JFrame {
         login.setBounds(280, 130, 200, 60);
         panel.add(login);
 
-        JLabel idLabel = new JLabel("ID");
+        JLabel idLabel = new JLabel("Nombre Usuario");
         idLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
         idLabel.setForeground(TEXTO_OSCURO);
-        idLabel.setBounds(80, 260, 100, 25);
+        idLabel.setBounds(80, 260, 200, 25);
         panel.add(idLabel);
 
         CustomTextField idField = new CustomTextField();

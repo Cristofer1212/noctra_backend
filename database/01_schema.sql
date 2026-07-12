@@ -19,8 +19,7 @@ CREATE TABLE user (
                       last_name VARCHAR(50) NOT NULL,
                       phone VARCHAR(20) NULL,
                       nickname VARCHAR(50) NOT NULL,
-                      pin VARCHAR(255) NOT NULL,
-                      password VARCHAR(255) NULL, -- Se mantiene por compatibilidad
+                      password VARCHAR(255) NOT NULL,
                       address VARCHAR(255) NULL,
                       mail VARCHAR(150) NULL,
                       state VARCHAR(50) DEFAULT 'ACTIVE' NOT NULL,
