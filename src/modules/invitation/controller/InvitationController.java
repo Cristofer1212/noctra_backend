@@ -49,33 +49,28 @@ public class InvitationController implements HttpHandler {
 
 
     public void handleInvite(HttpExchange exchange) throws IOException {
-        System.out.println("DEBUG: Iniciando handleInvite en InvitationController");
+        System.out.println("DEBUG: Iniciando handleInvite");
 
         try {
-            // 1. Leer el cuerpo UNA SOLA VEZ
             String json = HttpUtils.readRequestBody(exchange);
             System.out.println("DEBUG: JSON recibido: " + json);
 
-            // 2. Convertir JSON a DTO
             SendInvitationDto sendInvitationDto = JsonUtils.fromJson(json, SendInvitationDto.class);
 
-            // 3. Obtener el ID del emisor (issuerUserId) del contexto de la sesión
-            // Como no tienes clase de sesión, aquí lo sacas de donde tengas guardado al usuario logueado
-            Integer idEmisor = UserController.idUsuarioLogueado; // <--- AQUÍ DEBES PONER EL ID DEL USUARIO REAL QUE HIZO LOGIN
+            // --- VERIFICACIÓN DE SEGURIDAD ---
+            Integer idEmisor = UserController.idUsuarioLogueado;
+            System.out.println("DEBUG: ID del usuario logueado en UserController: " + idEmisor);
+            System.out.println("DEBUG: Event ID en el DTO: " + (sendInvitationDto != null ? sendInvitationDto.getEventId() : "NULL DTO"));
+
             if (idEmisor == null) {
                 HttpUtils.sendResponse(exchange, 401, "{\"error\": \"Usuario no autenticado\"}");
                 return;
             }
-            // 4. Llamar al servicio pasando el DTO Y el contexto (emisor)
-            // Nota: Ajusta tu createInvitation en el Service para recibir estos parámetros
-            invitationService.createInvitation(sendInvitationDto, idEmisor);
 
-            // 5. Enviar respuesta exitosa
+            invitationService.createInvitation(sendInvitationDto, idEmisor);
             HttpUtils.sendResponse(exchange, 201, "{\"message\": \"Invitación creada exitosamente\"}");
 
         } catch (Throwable t) {
-            // 6. Manejo centralizado de errores
-            System.err.println("ERROR FATAL CAPTURADO:");
             t.printStackTrace();
             HttpUtils.sendResponse(exchange, 500, "{\"error\": \"" + t.getMessage() + "\"}");
         }

@@ -15,6 +15,10 @@ public class CreateEventDto {
   public int getUserId() {
     return userId;
   }
+  public void setUserId(Integer userId) {
+    this.userId = userId;
+  }
+
 
   public String getName() {
     return name;
@@ -44,5 +48,7 @@ public class CreateEventDto {
   public String getState() {
     return state;
   }
+
+
 
 }

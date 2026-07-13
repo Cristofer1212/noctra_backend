@@ -2,27 +2,26 @@ package views.dashboard;
 
 import views.components.CustomButton;
 import views.components.CustomTextField;
+import com.toedter.calendar.JDateChooser; // Importación de la librería JCalendar
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 
 public class NuevoEventoView extends JFrame {
 
     private static final Color CELESTE_FONDO = new Color(0x74, 0xC7, 0xF0);
     private static final Color TEXTO_OSCURO  = new Color(0x2A, 0x2A, 0x2A);
     private static final Color AZUL_BOTON    = new Color(0x3E, 0x6B, 0x84);
-    private static final Color GRIS_PLACEHOLDER = new Color(0x9A, 0x9A, 0x9A);
-
-    private static final String PLACEHOLDER_FECHA = "dd/mm/aaaa";
-    private static final String PLACEHOLDER_HORA = "HH:mm";
 
     private final NuevoEventoController controller = new NuevoEventoController();
+    private final DashboardView dashboard; // Referencia para actualizar la vista principal
 
-    public NuevoEventoView() {
+    // --- CONSTRUCTOR MODIFICADO PARA RECIBIR DASHBOARD ---
+    public NuevoEventoView(DashboardView dashboard) {
+        this.dashboard = dashboard;
         setTitle("Noctra - Nuevo Evento");
         setSize(1500, 711);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -67,6 +66,7 @@ public class NuevoEventoView extends JFrame {
         titulo.setBounds(60, 45, 400, 55);
         panel.add(titulo);
 
+        // --- NOMBRE ---
         JLabel nombreLabel = crearEtiqueta("Nombre del Evento");
         nombreLabel.setBounds(60, 118, 300, 22);
         panel.add(nombreLabel);
@@ -76,38 +76,53 @@ public class NuevoEventoView extends JFrame {
         nombreField.setBounds(60, 148, 600, 42);
         panel.add(nombreField);
 
+        // --- FECHA Y HORA INICIO ---
         JLabel inicioLabel = crearEtiqueta("Fecha y Hora inicial");
         inicioLabel.setBounds(60, 205, 300, 22);
         panel.add(inicioLabel);
 
-        JTextField fechaInicioField = new JTextField();
-        CustomTextField.estilizarConBorde(fechaInicioField);
-        fechaInicioField.setBounds(60, 235, 280, 42);
-        agregarPlaceholder(fechaInicioField, PLACEHOLDER_FECHA);
-        panel.add(fechaInicioField);
+        JDateChooser fechaInicioChooser = new JDateChooser();
+        fechaInicioChooser.setDateFormatString("dd/MM/yyyy");
+        fechaInicioChooser.setBounds(60, 235, 280, 42);
+        panel.add(fechaInicioChooser);
 
-        JTextField horaInicioField = new JTextField();
-        CustomTextField.estilizarConBorde(horaInicioField);
-        horaInicioField.setBounds(360, 235, 300, 42);
-        agregarPlaceholder(horaInicioField, PLACEHOLDER_HORA);
-        panel.add(horaInicioField);
+// Configuración para iniciar en 00:00
+        java.util.Calendar calInicio = java.util.Calendar.getInstance();
+        calInicio.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        calInicio.set(java.util.Calendar.MINUTE, 0);
+        calInicio.set(java.util.Calendar.SECOND, 0);
 
+        SpinnerDateModel timeModelInicio = new SpinnerDateModel(calInicio.getTime(), null, null, java.util.Calendar.HOUR_OF_DAY);
+        JSpinner horaInicioSpinner = new JSpinner(timeModelInicio);
+        JSpinner.DateEditor editorHoraInicio = new JSpinner.DateEditor(horaInicioSpinner, "HH:mm");
+        horaInicioSpinner.setEditor(editorHoraInicio);
+        horaInicioSpinner.setBounds(360, 235, 300, 42);
+        panel.add(horaInicioSpinner);
+
+// --- FECHA Y HORA FIN ---
         JLabel finLabel = crearEtiqueta("Fecha y Hora final");
         finLabel.setBounds(60, 292, 300, 22);
         panel.add(finLabel);
 
-        JTextField fechaFinField = new JTextField();
-        CustomTextField.estilizarConBorde(fechaFinField);
-        fechaFinField.setBounds(60, 322, 280, 42);
-        agregarPlaceholder(fechaFinField, PLACEHOLDER_FECHA);
-        panel.add(fechaFinField);
+        JDateChooser fechaFinChooser = new JDateChooser();
+        fechaFinChooser.setDateFormatString("dd/MM/yyyy");
+        fechaFinChooser.setBounds(60, 322, 280, 42);
+        panel.add(fechaFinChooser);
 
-        JTextField horaFinField = new JTextField();
-        CustomTextField.estilizarConBorde(horaFinField);
-        horaFinField.setBounds(360, 322, 300, 42);
-        agregarPlaceholder(horaFinField, PLACEHOLDER_HORA);
-        panel.add(horaFinField);
+// Configuración para iniciar en 00:00
+        java.util.Calendar calFin = java.util.Calendar.getInstance();
+        calFin.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        calFin.set(java.util.Calendar.MINUTE, 0);
+        calFin.set(java.util.Calendar.SECOND, 0);
 
+        SpinnerDateModel timeModelFin = new SpinnerDateModel(calFin.getTime(), null, null, java.util.Calendar.HOUR_OF_DAY);
+        JSpinner horaFinSpinner = new JSpinner(timeModelFin);
+        JSpinner.DateEditor editorHoraFin = new JSpinner.DateEditor(horaFinSpinner, "HH:mm");
+        horaFinSpinner.setEditor(editorHoraFin);
+        horaFinSpinner.setBounds(360, 322, 300, 42);
+        panel.add(horaFinSpinner);
+
+        // --- DIRECCIÓN ---
         JLabel direccionLabel = crearEtiqueta("Dirección");
         direccionLabel.setBounds(60, 379, 300, 22);
         panel.add(direccionLabel);
@@ -117,6 +132,7 @@ public class NuevoEventoView extends JFrame {
         direccionField.setBounds(60, 409, 600, 42);
         panel.add(direccionField);
 
+        // --- AFORO ---
         JLabel aforoLabel = crearEtiqueta("Aforo");
         aforoLabel.setBounds(60, 466, 300, 22);
         panel.add(aforoLabel);
@@ -126,30 +142,42 @@ public class NuevoEventoView extends JFrame {
         aforoField.setBounds(60, 496, 600, 42);
         panel.add(aforoField);
 
+        // --- BOTÓN AÑADIR ---
         CustomButton añadirBtn = new CustomButton("Añadir", AZUL_BOTON);
         añadirBtn.setBounds(280, 570, 220, 50);
         panel.add(añadirBtn);
 
         añadirBtn.addActionListener(e -> {
+            if (fechaInicioChooser.getDate() == null || fechaFinChooser.getDate() == null) {
+                JOptionPane.showMessageDialog(this, "Por favor, selecciona las fechas del evento usando el calendario.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            SimpleDateFormat sdfDate = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm");
+
             String nombre = nombreField.getText().trim();
-            String fechaInicio = valorReal(fechaInicioField, PLACEHOLDER_FECHA);
-            String horaInicio = valorReal(horaInicioField, PLACEHOLDER_HORA);
-            String fechaFin = valorReal(fechaFinField, PLACEHOLDER_FECHA);
-            String horaFin = valorReal(horaFinField, PLACEHOLDER_HORA);
+            String fechaInicio = sdfDate.format(fechaInicioChooser.getDate());
+            String horaInicio = sdfTime.format(horaInicioSpinner.getValue());
+            String fechaFin = sdfDate.format(fechaFinChooser.getDate());
+            String horaFin = sdfTime.format(horaFinSpinner.getValue());
+
             String direccion = direccionField.getText().trim();
             String aforo = aforoField.getText().trim();
 
             String error = controller.crearEvento(nombre, fechaInicio, horaInicio, fechaFin, horaFin, direccion, aforo);
+
             if (error != null) {
                 JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this,
-                        "Evento validado correctamente.\n(Falta que Cristian conecte el guardado real en la base de datos.)",
-                        "Listo", JOptionPane.INFORMATION_MESSAGE);
-                dispose(); // el Dashboard sigue abierto detrás
+                JOptionPane.showMessageDialog(this, "Evento creado exitosamente.", "Listo", JOptionPane.INFORMATION_MESSAGE);
+
+                // --- AQUÍ LLAMAS A LA ACTUALIZACIÓN DEL DASHBOARD ---
+                dashboard.actualizarEventos();
+
+                dispose();
             }
         });
-
         return panel;
     }
 
@@ -168,50 +196,12 @@ public class NuevoEventoView extends JFrame {
 
         volver.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(MouseEvent e) {
-                volver.setForeground(TEXTO_OSCURO);
-            }
-
+            public void mouseEntered(MouseEvent e) { volver.setForeground(TEXTO_OSCURO); }
             @Override
-            public void mouseExited(MouseEvent e) {
-                volver.setForeground(new Color(0x7A, 0x7A, 0x7A));
-            }
-
+            public void mouseExited(MouseEvent e) { volver.setForeground(new Color(0x7A, 0x7A, 0x7A)); }
             @Override
-            public void mouseClicked(MouseEvent e) {
-                dispose(); // el Dashboard ya sigue abierto detrás
-            }
+            public void mouseClicked(MouseEvent e) { dispose(); }
         });
-
         return volver;
-    }
-
-    // ---- Placeholder simple para los campos de fecha/hora (sin librerías externas) ----
-
-    private void agregarPlaceholder(JTextField field, String placeholder) {
-        field.setForeground(GRIS_PLACEHOLDER);
-        field.setText(placeholder);
-        field.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (field.getText().equals(placeholder)) {
-                    field.setText("");
-                    field.setForeground(TEXTO_OSCURO);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getText().isBlank()) {
-                    field.setForeground(GRIS_PLACEHOLDER);
-                    field.setText(placeholder);
-                }
-            }
-        });
-    }
-
-    private String valorReal(JTextField field, String placeholder) {
-        String texto = field.getText().trim();
-        return texto.equals(placeholder) ? "" : texto;
     }
 }

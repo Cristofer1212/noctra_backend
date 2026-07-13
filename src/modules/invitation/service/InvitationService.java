@@ -2,6 +2,7 @@ package modules.invitation.service;
 
 
 import config.exception.DatabaseConnectionException;
+import modules.event.repository.IEventRepository;
 import modules.guest.model.Guest;
 import modules.guest.repository.GuestRepository;
 import modules.guest.service.GuestService;
@@ -25,12 +26,14 @@ public class InvitationService {
     private final ICloudinaryService cloudinaryService;
     private final IWhatsappService whatsappService;
     private final UserService userService;
+    private final IEventRepository eventRepository;
     public InvitationService(
             GuestService guestService,
             IInvitationRepository invitationRepository,
             ICloudinaryService cloudinaryService,
             IWhatsappService whatsappService,
-            UserService userService
+            UserService userService,
+            IEventRepository eventRepository
 
 
     ) {
@@ -39,6 +42,7 @@ public class InvitationService {
         this.cloudinaryService = cloudinaryService;
         this.whatsappService = whatsappService;
         this.userService = userService;
+        this.eventRepository = eventRepository;
     }
 
     // Crear Invitación
@@ -66,6 +70,7 @@ public class InvitationService {
                     guest.getId(),
                     token,
                     codigo_qr,
+                    sendInvitationDto.getEventId(),
                     issuerUserId
             );
 
@@ -81,6 +86,16 @@ public class InvitationService {
 
             // Guardar ticket en BD con el URL del QR
             invitation.setCodeQr(qrUrl);
+            // Justo antes de guardar, imprime los valores:
+            System.out.println("--- DEPURACIÓN CRÍTICA ANTES DE GUARDAR ---");
+            System.out.println("Event ID: " + invitation.getEventId());
+            System.out.println("Guest ID: " + invitation.getGuestId());
+            System.out.println("ISSUER USER ID (EL QUE FALLA): [" + invitation.getIssuerUserId() + "]");
+
+// Verificación de seguridad
+            if (invitation.getIssuerUserId() == null || invitation.getIssuerUserId() <= 0) {
+                System.err.println("¡ERROR DETECTADO! El ID del usuario es inválido o nulo.");
+            }
             invitationRepository.save(invitation);
             // Enviar Ticket al wsp del invitado
             sendWhatsAppInvitation(sendInvitationDto.getPhoneGuest(), invitation, issuerUserId);        } catch (Exception e) {
@@ -96,29 +111,40 @@ public class InvitationService {
 
 
 
-    // Modifica este metodo en tu clase InvitationService
-// Cambia la firma aquí
+
     public void sendWhatsAppInvitation(String phoneNumber, Invitation invitation, Integer issuerUserId) throws DatabaseConnectionException {
         String nombre = "Usuario";
 
+        // 1. Buscamos el emisor (esto ya lo tenías)
         try {
-            // Usamos el ID que ya tenemos en la mano
-            if (issuerUserId != null) {
-                var userOptional = userService.findById(issuerUserId);
-                if (userOptional.isPresent()) {
-                    nombre = userOptional.get().getName();
-                }
+            var userOptional = userService.findById(issuerUserId);
+            if (userOptional.isPresent()) {
+                nombre = userOptional.get().getName();
             }
         } catch (Exception e) {
             System.err.println("Error al buscar el nombre del emisor: " + e.getMessage());
         }
 
-        String evento = "POO";
-        String fechaInicio = "Hoy";
-        String fechaFin = "Mañana";
+        // 2. BUSCAMOS EL EVENTO REAL
+        String eventoNombre = "Evento";
+        String fechaInicio = "Próximamente";
+        String fechaFin = "";
 
-        // Pasas invitation.getCodeQr() porque el metodo whatsappService necesita el String de la URL
-        whatsappService.sendInvitation(phoneNumber, invitation.getCodeQr(), nombre, evento, fechaInicio, fechaFin);
+        try {
+            // Asumiendo que tu repositorio tiene un método findById
+            var eventoOpt = eventRepository.findById(invitation.getEventId());
+            if (eventoOpt.isPresent()) {
+                var eventoReal = eventoOpt.get();
+                eventoNombre = eventoReal.getName();
+                // Formateamos las fechas (asumiendo que son LocalDateTime)
+                fechaInicio = eventoReal.getStartDate().toLocalDate().toString();
+                fechaFin = eventoReal.getEndDate().toLocalDate().toString();
+            }
+        } catch (Exception e) {
+            System.err.println("Error al obtener datos del evento: " + e.getMessage());
+        }
+
+        // 3. ENVIAMOS CON LOS DATOS DINÁMICOS
+        whatsappService.sendInvitation(phoneNumber, invitation.getCodeQr(), nombre, eventoNombre, fechaInicio, fechaFin);
     }
-
 }

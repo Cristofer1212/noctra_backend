@@ -15,6 +15,7 @@ public class CollapsibleSectionPanel extends JPanel {
 
     private boolean expandido = true;
     private final JPanel panelFilas;
+    private final JScrollPane scrollFilas;
     private final JLabel botonToggle;
 
     public CollapsibleSectionPanel(String titulo, List<JComponent> filas) {
@@ -44,7 +45,20 @@ public class CollapsibleSectionPanel extends JPanel {
             }
         }
 
-        add(panelFilas, BorderLayout.CENTER);
+        // Creamos el scroll dedicado ÚNICAMENTE para las filas de esta sección
+        scrollFilas = new JScrollPane(panelFilas);
+        scrollFilas.setBorder(null);
+        scrollFilas.getViewport().setBackground(COLOR_CONTENIDO);
+        scrollFilas.getVerticalScrollBar().setUnitIncrement(16); // Scroll fluido
+        scrollFilas.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollFilas.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        // SI EXCEEDE DE 4 FILAS: Le fijamos una altura máxima para activar el scrollbar interno
+        if (filas.size() > 4) {
+            scrollFilas.setPreferredSize(new Dimension(scrollFilas.getPreferredSize().width, 270));
+        }
+
+        add(scrollFilas, BorderLayout.CENTER);
     }
 
     private JPanel crearBarraTitulo(String titulo) {
@@ -87,6 +101,7 @@ public class CollapsibleSectionPanel extends JPanel {
 
     private void alternarExpansion() {
         expandido = !expandido;
+        scrollFilas.setVisible(expandido); // Ocultamos el scroll completo al colapsar
         panelFilas.setVisible(expandido);
         botonToggle.setText(expandido ? "\u2212" : "+");
         revalidate();

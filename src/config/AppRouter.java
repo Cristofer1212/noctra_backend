@@ -1,6 +1,10 @@
 package config;
 
 import com.sun.net.httpserver.HttpServer;
+import modules.event.controller.EventController;
+import modules.event.repository.EventRepository;
+import modules.event.repository.IEventRepository;
+import modules.event.service.EventService;
 import modules.guest.repository.GuestRepository;
 import modules.guest.repository.IGuestRepository;
 import modules.guest.service.GuestService;
@@ -29,43 +33,44 @@ import modules.user.service.UserService;
 import modules.user.validator.UserValidator;
 
 public class AppRouter {
-
     public static void configure(HttpServer server) {
-
-
         // User Module
-        IUserRepository IUserRepository = new UserRepository();
+        IUserRepository userRepository = new UserRepository();
         UserValidator validator = new UserValidator();
         UserMapper mapper = new UserMapper();
-        UserService userService = new UserService(IUserRepository, validator, mapper);
+        UserService userService = new UserService(userRepository, validator, mapper);
         UserController userController = new UserController(userService);
 
+        // --- INSTANCIA ÚNICA ---
+        IInvitationRepository invitationRepository = new InvitationRepository();
+        // -----------------------
 
         // Invitation Module
-        IInvitationRepository invitationRepository = new InvitationRepository();
         IGuestRepository guestRepository = new GuestRepository();
         GuestService guestService = new GuestService(guestRepository);
         ICloudinaryService cloudinaryService = new CloudinaryService();
         HttpClientWrapper httpClient = new HttpClientWrapper();
         IWhatsappService whatsappService = new WhatsappService(httpClient);
-        InvitationService invitationService = new InvitationService(guestService, invitationRepository, cloudinaryService,whatsappService, userService );
+        IEventRepository eventRepository = new EventRepository();
+
+        // Usamos el MISMO 'invitationRepository' aquí
+        InvitationService invitationService = new InvitationService(guestService, invitationRepository, cloudinaryService, whatsappService, userService, eventRepository);
         InvitationController invitationController = new InvitationController(invitationService);
 
         // Portero Module
-        InvitationRepository invitationRepository1 = new InvitationRepository();
+        // Usamos el MISMO 'invitationRepository' aquí también
         IWhatsappService whatsappService1 = new WhatsappService(httpClient);
-        IScanner iScanner = new ScannerService(invitationRepository1);
+        IScanner iScanner = new ScannerService(invitationRepository);
         PorteroService porteroService = new PorteroService(whatsappService1);
-        PorteroController porteroController= new PorteroController(porteroService, iScanner);
+        PorteroController porteroController = new PorteroController(porteroService, iScanner);
 
-
+        // Event Module
+        EventService eventService = new EventService(eventRepository);
+        EventController eventController = new EventController(eventService);
 
         // Webhooks
         IWebhookHandler webhookHandler = new WebhookHandler();
         WebhookController webhookController = new WebhookController(webhookHandler);
-
-
-
 
         // Endpoints
         server.createContext("/api/webhook", webhookController);
@@ -73,7 +78,6 @@ public class AppRouter {
         server.createContext("/invitations", invitationController);
         server.createContext("/portero/createPortero", porteroController);
         server.createContext("/portero/validar", porteroController);
-
-
+        server.createContext("/event", eventController);
     }
 }

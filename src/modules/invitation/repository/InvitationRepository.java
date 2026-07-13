@@ -12,38 +12,46 @@ public class InvitationRepository implements IInvitationRepository {
 
     @Override
     public void save(Invitation invitation) throws DatabaseConnectionException {
-        // 1. Asegúrate de que issuer_user_id esté en la lista
-        String sql = "INSERT INTO invitation (issuer_user_id, guest_id, token, code_qr, state, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        // 1. Agregamos 'event_id' a la consulta SQL
+        String sql = "INSERT INTO invitation (event_id, issuer_user_id, guest_id, token, code_qr, state, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DbConnection.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql)) {
 
-            // 2. Aquí es donde se asigna el ID. ¡Verifica que el índice sea correcto!
-            stmt.setInt(1, invitation.getIssuerUserId()); // <-- ESTO ES LO QUE TIENE QUE LLEGAR
-            stmt.setInt(2, invitation.getGuestId());
-            stmt.setString(3, invitation.getToken());
-            stmt.setString(4, invitation.getCodeQr());
-            stmt.setString(5, invitation.getState());
-            stmt.setObject(6, invitation.getCreatedAt());
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            System.out.println("DEBUG: Base de datos activa: " + connection.getCatalog());
+            // 2. Asignamos los valores (¡El orden es muy importante!)
+            stmt.setInt(1, invitation.getEventId());      // Nuevo campo
+            stmt.setInt(2, invitation.getIssuerUserId());
+            stmt.setInt(3, invitation.getGuestId());
+            stmt.setString(4, invitation.getToken());
+            stmt.setString(5, invitation.getCodeQr());
+            stmt.setString(6, invitation.getState());
+            stmt.setObject(7, invitation.getCreatedAt());
 
             stmt.executeUpdate();
-            System.out.println("DEBUG: Guardado exitoso con issuer_user_id: " + invitation.getIssuerUserId());
         } catch (SQLException e) {
             throw new DatabaseConnectionException("Error al guardar: " + e.getMessage());
         }
     }
     @Override
     public Optional<Invitation> findByToken(String token) throws DatabaseConnectionException {
-        String sql = "SELECT * FROM noctra_mvp.invitation WHERE token = ?";
-        try(
+        // 1. Especificamos el esquema 'noctra_mvp' antes de la tabla
+        String sql = "INSERT INTO invitation (event_id, issuer_user_id, guest_id, token, code_qr, state, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        // 2. DEBUG: Verificamos el valor EXACTO antes de enviar
+        Invitation invitation = null;
+        System.out.println("DEBUG (Repository): Guardando con Issuer ID: " + invitation.getIssuerUserId());
+        invitation = null;
+        System.out.println("DEBUG (Repository): Guardando con Event ID: " + invitation.getEventId());
+        try (
                 Connection connection = DbConnection.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                ) {
+        ) {
             preparedStatement.setString(1, token);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     // Mapteamos los datos de la as de datos al objeto invitación
-                    Invitation invitation = new Invitation();
+                    invitation = new Invitation();
                     invitation.setId(resultSet.getInt("id"));
                     invitation.setEventId(resultSet.getInt("event_id"));
                     invitation.setIssuerUserId(resultSet.getInt("issuer_user_id"));
@@ -66,7 +74,6 @@ public class InvitationRepository implements IInvitationRepository {
             e.printStackTrace();
             throw new DatabaseConnectionException("Error en BD", e);
         }
-
 
 
     }

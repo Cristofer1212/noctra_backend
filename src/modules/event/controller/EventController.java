@@ -8,10 +8,12 @@ import modules.event.dto.CreateEventDto;
 import modules.event.service.EventService;
 import modules.shared.http.HttpUtils;
 import modules.shared.json.JsonUtils;
+import modules.user.controller.UserController;
 
 public class EventController implements HttpHandler {
 
   private final EventService eventService;
+
 
   public EventController(EventService eventService) {
     this.eventService = eventService;
@@ -48,6 +50,7 @@ public class EventController implements HttpHandler {
         HttpUtils.sendResponse(exchange, 400, "{\"error\": \"El cuerpo de la solicitud no puede estar vacío\"}");
         return;
       }
+      dto.setUserId(UserController.idUsuarioLogueado);
 
       // Enviamos el DTO al servicio para procesarlo
       eventService.createEventService(dto);

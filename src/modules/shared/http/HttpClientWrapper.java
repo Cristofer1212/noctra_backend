@@ -8,7 +8,7 @@ import java.net.http.HttpResponse;
 public class HttpClientWrapper {
     private final HttpClient client = HttpClient.newHttpClient();
 
-    public void post(String url, String json, String token) {
+    public String post(String url, String json, String token) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -20,9 +20,10 @@ public class HttpClientWrapper {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             System.out.println("Respuesta API Meta: " + response.statusCode());
             System.out.println("Cuerpo de error de Meta: " + response.body());
+            return response.body(); // <--- Aquí ya devuelves el éxito
         } catch (Exception e) {
             e.printStackTrace();
-
+            return "Error: " + e.getMessage();
         }
     }
 }

@@ -9,9 +9,7 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +27,7 @@ public class DashboardView extends JFrame {
 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel panelTarjetas = new JPanel(cardLayout);
-    private JPanel panelEventosActual;
+    private JScrollPane panelEventosActual;
     private SidebarItem itemEventos;
     private SidebarItem itemColaboradores;
 
@@ -51,23 +49,24 @@ public class DashboardView extends JFrame {
         add(crearBarraSuperior(), BorderLayout.NORTH);
         add(crearBarraLateral(), BorderLayout.WEST);
         add(panelTarjetas, BorderLayout.CENTER);
+
+        // Carga la data real justo al iniciar
+        SwingUtilities.invokeLater(() -> {
+            new DashboardController().cargarEventosEnVista(this);
+        });
     }
 
-    // Se llama después de agregar un evento nuevo (desde NuevoEventoView), para que
-    // aparezca de inmediato en "Activos" o "Próximos" sin tener que reiniciar la app.
+    // --- LÓGICA DE ACTUALIZACIÓN ---
     public void actualizarEventos() {
-        panelTarjetas.remove(panelEventosActual);
-        panelEventosActual = crearPanelEventos();
-        panelTarjetas.add(panelEventosActual, "EVENTOS");
-        cardLayout.show(panelTarjetas, "EVENTOS");
-        itemEventos.setSeleccionado(true);
-        itemColaboradores.setSeleccionado(false);
-        revalidate();
-        repaint();
+        new DashboardController().cargarEventosEnVista(this);
+
+        if (itemEventos != null) {
+            itemEventos.setSeleccionado(true);
+            itemColaboradores.setSeleccionado(false);
+        }
     }
 
     // ---------- BARRA SUPERIOR ----------
-
     private JPanel crearBarraSuperior() {
         JPanel barra = new JPanel(new BorderLayout());
         barra.setBackground(BLANCO);
@@ -84,9 +83,7 @@ public class DashboardView extends JFrame {
         derecha.add(crearNotificacion());
         derecha.add(crearSeparador());
 
-        // Menú desplegable para cerrar sesión
         JPopupMenu menuUsuario = crearMenuCerrarSesion();
-
         JLabel saludo = new JLabel("<html>Hola, <b>" + nombreUsuario + "</b></html>");
         saludo.setFont(new Font("SansSerif", Font.PLAIN, 18));
         saludo.setForeground(TEXTO_OSCURO);
@@ -126,8 +123,7 @@ public class DashboardView extends JFrame {
         cerrarSesionItem.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         cerrarSesionItem.addActionListener(e -> {
-            // Cierra el Dashboard y regresa al Login
-            LoginView loginView = new LoginView(null); // Pásale tu UserService si te lo pide el constructor
+            LoginView loginView = new LoginView(null);
             loginView.setVisible(true);
             dispose();
         });
@@ -189,7 +185,6 @@ public class DashboardView extends JFrame {
     }
 
     // ---------- BARRA LATERAL ----------
-
     private JPanel crearBarraLateral() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -230,18 +225,8 @@ public class DashboardView extends JFrame {
     }
 
     // ---------- CONTENIDO ----------
-
-    private JPanel crearPanelEventos() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(AZUL_FONDO);
-        panel.setBorder(BorderFactory.createEmptyBorder(25, 30, 25, 30));
-
-        panel.add(crearBotonesAccion());
-        panel.add(Box.createRigidArea(new Dimension(0, 20)));
-        panel.add(crearSeccionEventos());
-
-        return panel;
+    private JScrollPane crearPanelEventos() {
+        return crearPanelEventosConDatos(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     private JPanel crearBotonesAccion() {
@@ -256,11 +241,11 @@ public class DashboardView extends JFrame {
         OutlineButton colaborar = new OutlineButton("Colaborar");
         colaborar.setPreferredSize(new Dimension(220, 45));
 
-        // TODO: reemplazar el JOptionPane por la ventana emergente real cuando la armemos
         nuevoEvento.addActionListener(e -> {
-            NuevoEventoView nuevoEventoView = new NuevoEventoView();
+            NuevoEventoView nuevoEventoView = new NuevoEventoView(this);
             nuevoEventoView.setVisible(true);
         });
+
         colaborar.addActionListener(e ->
                 JOptionPane.showMessageDialog(this, "Función en desarrollo: unirse como colaborador."));
 
@@ -269,49 +254,6 @@ public class DashboardView extends JFrame {
         return panel;
     }
 
-    private JPanel crearSeccionEventos() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setOpaque(false);
-        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        List<Event> eventos = obtenerEventosDeEjemplo(); // TODO: reemplazar por EventService real
-        LocalDate hoy = LocalDate.now();
-
-        List<Event> activos = new ArrayList<>();
-        List<Event> proximos = new ArrayList<>();
-        for (Event evento : eventos) {
-            if (evento.isActive(hoy)) {
-                activos.add(evento);
-            } else if (evento.isUpcoming(hoy)) {
-                proximos.add(evento);
-            }
-        }
-
-        List<JComponent> filasActivos = new ArrayList<>();
-        for (int i = 0; i < activos.size(); i++) {
-            filasActivos.add(crearFilaClickeable(activos.get(i), true, i < activos.size() - 1));
-        }
-
-        List<JComponent> filasProximos = new ArrayList<>();
-        for (int i = 0; i < proximos.size(); i++) {
-            filasProximos.add(crearFilaClickeable(proximos.get(i), false, i < proximos.size() - 1));
-        }
-
-        CollapsibleSectionPanel seccionActivos = new CollapsibleSectionPanel("Eventos Activos", filasActivos);
-        seccionActivos.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        CollapsibleSectionPanel seccionProximos = new CollapsibleSectionPanel("Próximos Eventos", filasProximos);
-        seccionProximos.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        panel.add(seccionActivos);
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(seccionProximos);
-
-        return panel;
-    }
-
-    // Envuelve cada EventRowPanel con el click que abre el detalle del evento.
     private JComponent crearFilaClickeable(Event evento, boolean esActivo, boolean mostrarLinea) {
         EventRowPanel fila = new EventRowPanel(evento, esActivo, mostrarLinea);
         fila.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -325,40 +267,90 @@ public class DashboardView extends JFrame {
         return fila;
     }
 
-    // ---------- DATOS DE EJEMPLO (solo para maquetar, sacar cuando exista EventService) ----------
+    public void renderizarEventos(List<Event> activos, List<Event> proximos, List<Event> pasados) {
+        panelTarjetas.remove(panelEventosActual);
 
-    private List<Event> obtenerEventosDeEjemplo() {
-        List<Event> lista = new ArrayList<>();
-        LocalDate hoy = LocalDate.now();
+        panelEventosActual = crearPanelEventosConDatos(activos, proximos, pasados);
 
-        lista.add(new Event(1, "Gala benéfica \"Buena Ventura\"", "Salón Central",
-                LocalDateTime.of(hoy, LocalTime.of(18, 30)),
-                LocalDateTime.of(hoy, LocalTime.of(23, 0)), 120));
+        panelTarjetas.add(panelEventosActual, "EVENTOS");
+        cardLayout.show(panelTarjetas, "EVENTOS");
 
-        lista.add(new Event(1, "Cumpleaños \"Mario Vargas\"", "Quinta Los Álamos",
-                LocalDateTime.of(hoy, LocalTime.of(20, 0)),
-                LocalDateTime.of(hoy, LocalTime.of(23, 59)), 60));
+        panelTarjetas.revalidate();
+        panelTarjetas.repaint();
+    }
 
-        lista.add(new Event(1, "Firma de Libros \"Agatha Christie\"", "Librería Central",
-                LocalDateTime.of(hoy.plusDays(2), LocalTime.of(10, 0)),
-                LocalDateTime.of(hoy.plusDays(2), LocalTime.of(13, 0)), 40));
+    private JScrollPane crearPanelEventosConDatos(List<Event> activos, List<Event> proximos, List<Event> pasados) {
+        JPanel panelContenido = new JPanel();
+        panelContenido.setLayout(new BoxLayout(panelContenido, BoxLayout.Y_AXIS));
+        panelContenido.setBackground(AZUL_FONDO);
+        panelContenido.setBorder(BorderFactory.createEmptyBorder(25, 30, 25, 30));
 
-        lista.add(new Event(1, "Cumpleaños \"Fernando Trujillo\"", "Casa de eventos Trujillo",
-                LocalDateTime.of(hoy.plusDays(3), LocalTime.of(20, 0)),
-                LocalDateTime.of(hoy.plusDays(3), LocalTime.of(23, 59)), 50));
+        // 1. Añadimos componentes fijos de arriba
+        panelContenido.add(crearBotonesAccion());
+        panelContenido.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        lista.add(new Event(1, "Cumpleaños \"Jane Austen\"", "Jardín Botánico",
-                LocalDateTime.of(hoy.plusDays(5), LocalTime.of(20, 0)),
-                LocalDateTime.of(hoy.plusDays(5), LocalTime.of(23, 59)), 80));
+        // 2. CORREGIDO: Pasamos correctamente las 3 listas al método de empaquetado de secciones
+        panelContenido.add(crearSeccionEventosConDatos(activos, proximos, pasados));
 
-        lista.add(new Event(1, "Graduación \"Unidos\"", "Auditorio Municipal",
-                LocalDateTime.of(hoy.plusDays(7), LocalTime.of(20, 0)),
-                LocalDateTime.of(hoy.plusDays(7), LocalTime.of(23, 59)), 200));
+        // 3. Envoltorio elástico para obligar al ScrollPane a leer la altura real de las N filas
+        JPanel elasticoWrapper = new JPanel(new BorderLayout());
+        elasticoWrapper.setBackground(AZUL_FONDO);
+        elasticoWrapper.add(panelContenido, BorderLayout.NORTH);
 
-        lista.add(new Event(1, "Cena Empresarial \"Seven Seas\"", "Restaurante Seven Seas",
-                LocalDateTime.of(hoy.plusDays(9), LocalTime.of(20, 0)),
-                LocalDateTime.of(hoy.plusDays(9), LocalTime.of(23, 59)), 30));
+        return aplicarScroll(elasticoWrapper);
+    }
 
-        return lista;
+    // CORREGIDO: Firma del método expandida a 3 argumentos para soportar los eventos pasados
+    private JPanel crearSeccionEventosConDatos(List<Event> activos, List<Event> proximos, List<Event> pasados) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setOpaque(false);
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Renderizado de eventos activos
+        List<JComponent> filasActivos = new ArrayList<>();
+        for (int i = 0; i < activos.size(); i++) {
+            filasActivos.add(crearFilaClickeable(activos.get(i), true, i < activos.size() - 1));
+        }
+
+        // Renderizado de eventos próximos
+        List<JComponent> filasProximos = new ArrayList<>();
+        for (int i = 0; i < proximos.size(); i++) {
+            filasProximos.add(crearFilaClickeable(proximos.get(i), false, i < proximos.size() - 1));
+        }
+
+        // Renderizado de eventos pasados
+        List<JComponent> filasPasados = new ArrayList<>();
+        for (int i = 0; i < pasados.size(); i++) {
+            filasPasados.add(crearFilaClickeable(pasados.get(i), false, i < pasados.size() - 1));
+        }
+
+        CollapsibleSectionPanel seccionActivos = new CollapsibleSectionPanel("Eventos Activos", filasActivos);
+        seccionActivos.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        CollapsibleSectionPanel seccionProximos = new CollapsibleSectionPanel("Próximos Eventos", filasProximos);
+        seccionProximos.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        CollapsibleSectionPanel seccionPasados = new CollapsibleSectionPanel("Eventos Pasados", filasPasados);
+        seccionPasados.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        panel.add(seccionActivos);
+        panel.add(Box.createRigidArea(new Dimension(0, 25)));
+        panel.add(seccionProximos);
+        panel.add(Box.createRigidArea(new Dimension(0, 25)));
+        panel.add(seccionPasados);
+
+        // CORREGIDO: Retornamos la variable local correcta 'panel'
+        return panel;
+    }
+
+    private JScrollPane aplicarScroll(JPanel panelConWrapper) {
+        JScrollPane scroll = new JScrollPane(panelConWrapper);
+        scroll.setBorder(null);
+        scroll.getViewport().setBackground(AZUL_FONDO);
+        scroll.getVerticalScrollBar().setUnitIncrement(18);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        return scroll;
     }
 }

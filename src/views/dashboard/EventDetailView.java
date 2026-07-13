@@ -238,7 +238,7 @@ public class EventDetailView extends JFrame {
         btnInvitados.addActionListener(e -> {
             // Pasamos 'this' porque EventDetailView es un JFrame (una ventana válida)
             SendInvitationView modalInvitacion = new SendInvitationView(this);
-            SendInvitationController controladorInvitacion = new SendInvitationController(modalInvitacion);
+            SendInvitationController controladorInvitacion = new SendInvitationController(modalInvitacion, event.getId());
             controladorInvitacion.mostrar();
         });
 

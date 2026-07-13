@@ -113,19 +113,31 @@ public class Event {
     }
 
     // ---------------------------------------------------------------
-    // Helpers de UI: agrupar por fecha para el dashboard (Activos/Próximos).
-    // Ojo: esto es independiente de "state" (que maneja PENDING/aprobación).
-    // Un evento puede estar APPROVED y aun así ser "próximo" si su fecha
-    // de inicio todavía no llegó.
+    // Helpers de UI: Clasificación por bloques de Horas completas
     // ---------------------------------------------------------------
 
-    public boolean isActive(LocalDate today) {
-        LocalDate start = startDate.toLocalDate();
-        LocalDate end = endDate.toLocalDate();
-        return !today.isBefore(start) && !today.isAfter(end);
+    public boolean isActive(LocalDateTime now) {
+        LocalDateTime ahora = now.withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime inicio = startDate.withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime fin = endDate.withMinute(0).withSecond(0).withNano(0);
+
+        // Está activo si ya llegó a la hora de inicio y aún no llega a la hora de fin
+        return (ahora.isEqual(inicio) || ahora.isAfter(inicio)) && ahora.isBefore(fin);
     }
 
-    public boolean isUpcoming(LocalDate today) {
-        return startDate.toLocalDate().isAfter(today);
+    public boolean isUpcoming(LocalDateTime now) {
+        LocalDateTime ahora = now.withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime inicio = startDate.withMinute(0).withSecond(0).withNano(0);
+
+        // Es próximo si la hora de inicio es mayor a la hora actual
+        return inicio.isAfter(ahora);
+    }
+
+    public boolean isPast(LocalDateTime now) {
+        LocalDateTime ahora = now.withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime fin = endDate.withMinute(0).withSecond(0).withNano(0);
+
+        // Es pasado si la hora actual ya alcanzó o superó la hora de finalización
+        return ahora.isEqual(fin) || ahora.isAfter(fin);
     }
 }
