@@ -35,23 +35,22 @@ public class InvitationRepository implements IInvitationRepository {
     }
     @Override
     public Optional<Invitation> findByToken(String token) throws DatabaseConnectionException {
-        // 1. Especificamos el esquema 'noctra_mvp' antes de la tabla
-        String sql = "INSERT INTO invitation (event_id, issuer_user_id, guest_id, token, code_qr, state, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        // 2. DEBUG: Verificamos el valor EXACTO antes de enviar
-        Invitation invitation = null;
-        System.out.println("DEBUG (Repository): Guardando con Issuer ID: " + invitation.getIssuerUserId());
-        invitation = null;
-        System.out.println("DEBUG (Repository): Guardando con Event ID: " + invitation.getEventId());
+        String sql = "SELECT * FROM invitation WHERE token = ?";
+
         try (
                 Connection connection = DbConnection.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ) {
+
             preparedStatement.setString(1, token);
+
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
+
                 if (resultSet.next()) {
-                    // Mapteamos los datos de la as de datos al objeto invitación
-                    invitation = new Invitation();
+
+                    Invitation invitation = new Invitation();
+
                     invitation.setId(resultSet.getInt("id"));
                     invitation.setEventId(resultSet.getInt("event_id"));
                     invitation.setIssuerUserId(resultSet.getInt("issuer_user_id"));
@@ -60,22 +59,20 @@ public class InvitationRepository implements IInvitationRepository {
                     invitation.setCodeQr(resultSet.getString("code_qr"));
                     invitation.setState(resultSet.getString("state"));
 
-                    // Convertimos el Timestamp de SQL a LocalDateTime de Java
-                    if (resultSet.getTimestamp("created_at") != null) {
-                        invitation.setCreatedAt(resultSet.getTimestamp("created_at").toLocalDateTime());
+                    Timestamp created = resultSet.getTimestamp("created_at");
+                    if (created != null) {
+                        invitation.setCreatedAt(created.toLocalDateTime());
                     }
+
                     return Optional.of(invitation);
                 }
 
+                return Optional.empty();
             }
-            return Optional.empty();
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new DatabaseConnectionException("Error en BD", e);
+            throw new DatabaseConnectionException("Error al buscar invitación por token", e);
         }
-
-
     }
 
     @Override
