@@ -14,4 +14,6 @@ public interface IEventRepository {
   Optional<Event> findById(Integer id) throws DatabaseConnectionException;
 
   List<Event> getEventsByUserId(Integer userId) throws DatabaseConnectionException;
+
+  void deleteEvent(Integer id) throws DatabaseConnectionException;
 }

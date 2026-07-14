@@ -29,8 +29,13 @@ public class EventController implements HttpHandler {
     if ("POST".equalsIgnoreCase(method) && "/event".equals(path)) {
       // Delegamos la petición a nuestro método personalizado
       createEventController(exchange);
-    } else {
-      // Si llega un GET, PUT, DELETE, etc., respondemos que no está permitido
+    }
+    // NUEVO: Manejo del DELETE
+    // Si la ruta empieza por /event/ y es DELETE -> Eliminar
+    else if (path.startsWith("/event/") && "DELETE".equalsIgnoreCase(method)) {
+      handleDeleteEvent(exchange);
+    }
+    else {
       HttpUtils.sendResponse(exchange, 405, "{\"error\": \"Método no permitido\"}");
     }
   }
@@ -80,4 +85,31 @@ public class EventController implements HttpHandler {
       HttpUtils.sendResponse(exchange, 400, JsonUtils.toJson(errorResponse));
     }
   }
+
+  private void handleDeleteEvent(HttpExchange exchange) throws IOException {
+    try {
+      // Obtenemos el path, ej: "/event/5"
+      String path = exchange.getRequestURI().getPath();
+      // Dividimos el path y obtenemos el último segmento como ID
+      String[] segments = path.split("/");
+      String idString = segments[segments.length - 1];
+      Integer id = Integer.parseInt(idString);
+
+      // Llamamos al servicio
+      eventService.deleteEvent(id); // Asegúrate de tener este método en tu EventService
+
+      HttpUtils.sendResponse(exchange, 200, "{\"message\": \"Evento eliminado correctamente\"}");
+
+    } catch (NumberFormatException e) {
+      HttpUtils.sendResponse(exchange, 400, "{\"error\": \"ID de evento no válido\"}");
+    } catch (DatabaseConnectionException e) {
+      e.printStackTrace();
+      HttpUtils.sendResponse(exchange, 500, "{\"error\": \"Error al eliminar el evento\"}");
+    } catch (Exception e) {
+      e.printStackTrace();
+      HttpUtils.sendResponse(exchange, 400, "{\"error\": \"Solicitud incorrecta\"}");
+    }
+  }
+
+
 }

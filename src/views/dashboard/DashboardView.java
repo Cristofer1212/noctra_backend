@@ -255,7 +255,7 @@ public class DashboardView extends JFrame {
     }
 
     private JComponent crearFilaClickeable(Event evento, boolean esActivo, boolean mostrarLinea) {
-        EventRowPanel fila = new EventRowPanel(evento, esActivo, mostrarLinea);
+        EventRowPanel fila = new EventRowPanel(this, evento, esActivo, mostrarLinea);
         fila.setCursor(new Cursor(Cursor.HAND_CURSOR));
         fila.addMouseListener(new MouseAdapter() {
             @Override
