@@ -26,4 +26,20 @@ public class HttpClientWrapper {
             return "Error: " + e.getMessage();
         }
     }
+    public String delete(String url) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Authorization", "Bearer ")
+                    .DELETE() // Aquí indicamos que es un DELETE
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error: " + e.getMessage();
+        }
+    }
+
 }

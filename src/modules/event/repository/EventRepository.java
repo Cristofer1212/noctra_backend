@@ -113,4 +113,27 @@ public class EventRepository implements IEventRepository {
 
     return eventos;
   }
+
+  @Override
+  public void deleteEvent(Integer id) throws DatabaseConnectionException {
+
+    String sql = "DELETE FROM event WHERE id = ?";
+
+    try(Connection connection = DbConnection.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql)
+    ) {
+      preparedStatement.setInt(1, id);
+
+      int rowsAffected = preparedStatement.executeUpdate();
+
+      if (rowsAffected == 0) {
+        throw new SQLException("No se encontró ningún evento con el ID proporcionado: " + id);
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new DatabaseConnectionException("Error al eliminar el evento con ID: " + id, e);
+    }
+
+  }
 }

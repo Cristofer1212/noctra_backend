@@ -8,12 +8,18 @@ public class ConfigLoader {
 
   static {
     try (InputStream input = ConfigLoader.class.getClassLoader().getResourceAsStream("config.properties")) {
+
       if (input == null) {
-        System.err.println("¡ERROR: No se pudo encontrar config.properties en la raíz del classpath!");
-      }
-      if (input != null) {
+        System.err.println("No se encontró config.properties");
+      } else {
         properties.load(input);
+
+        System.out.println("===== PROPIEDADES CARGADAS =====");
+        properties.forEach((k, v) ->
+                System.out.println(k + " = " + v));
+        System.out.println("===============================");
       }
+
     } catch (Exception e) {
       e.printStackTrace();
     }

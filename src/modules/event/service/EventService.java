@@ -32,4 +32,10 @@ public class EventService {
   public List<Event> getEventsByUserId(Integer userId) throws DatabaseConnectionException {
     return this.eventRepository.getEventsByUserId(userId);
   }
+
+
+  public void deleteEvent(Integer id) throws DatabaseConnectionException {
+    eventRepository.deleteEvent(id);
+  }
+
 }
