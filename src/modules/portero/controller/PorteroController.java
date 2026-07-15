@@ -67,7 +67,7 @@ public class PorteroController implements HttpHandler {
             // 2. Convertir JSON a DTO - serializar -
             PorteroCreateDto porteroCreateDto = new Gson().fromJson(json, PorteroCreateDto.class);
             // 3. Llamar al servicio
-            porteroService.createPortero();
+            //porteroService.createPortero();
 
 
             HttpUtils.sendResponse(exchange, 200, "{\"message\": \"Portero creado con éxito en Noctra MVP\"}");

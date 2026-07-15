@@ -5,19 +5,17 @@ public class PorteroCreateDto {
     private String dni;
     private String numCelular;
 
-
-    public PorteroCreateDto(String dni, String numCelularPortero ) {
+    public PorteroCreateDto(String dni, String numCelular) {
         this.dni = dni;
-        this.numCelular = numCelularPortero;
+        this.numCelular = numCelular;
     }
 
     public String getDni() {
         return dni;
     }
 
-    public String getNumCelularPortero() {
+    // Corregido para que coincida con el nombre del campo
+    public String getNumCelular() {
         return numCelular;
     }
-
-
 }
