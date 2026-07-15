@@ -1,6 +1,8 @@
 package modules.shared.http;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -8,6 +10,22 @@ import java.net.http.HttpResponse;
 public class HttpClientWrapper {
     private final HttpClient client = HttpClient.newHttpClient();
 
+
+    public String get(String url, String token)  {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Authorization", "Bearer " + token)
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.body();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error en la petición GET: "+e);
+        }
+    }
     public String post(String url, String json, String token) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -26,6 +44,11 @@ public class HttpClientWrapper {
             return "Error: " + e.getMessage();
         }
     }
+
+
+
+
+
     public String delete(String url) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
