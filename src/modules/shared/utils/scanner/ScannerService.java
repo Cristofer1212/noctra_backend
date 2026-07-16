@@ -72,6 +72,11 @@ public class ScannerService implements IScanner {
                         try {
                             Scan scan = new Scan(invitacion.getId(), porteroId, "Entry", "SUCCESS");
                             scanRepository.save(scan);
+                            try {
+                                views.dashboard.EventDetailView.refreshAll(invitacion.getEventId());
+                            } catch (Exception e) {
+                                System.err.println("DEBUG: Error al notificar refresco de UI: " + e.getMessage());
+                            }
                             return true;
                         } catch (DatabaseConnectionException e) {
                             System.err.println("DEBUG: Error al registrar log: " + e.getMessage());

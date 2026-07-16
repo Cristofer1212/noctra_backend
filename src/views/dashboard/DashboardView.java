@@ -29,7 +29,6 @@ public class DashboardView extends JFrame {
     private final JPanel panelTarjetas = new JPanel(cardLayout);
     private JScrollPane panelEventosActual;
     private SidebarItem itemEventos;
-    private SidebarItem itemColaboradores;
 
     public DashboardView(String nombreUsuario, int cantidadNotificaciones) {
         this.nombreUsuario = nombreUsuario;
@@ -44,7 +43,6 @@ public class DashboardView extends JFrame {
         panelTarjetas.setOpaque(false);
         panelEventosActual = crearPanelEventos();
         panelTarjetas.add(panelEventosActual, "EVENTOS");
-        panelTarjetas.add(new ColaboradoresPanel(), "COLABORADORES");
 
         add(crearBarraSuperior(), BorderLayout.NORTH);
         add(crearBarraLateral(), BorderLayout.WEST);
@@ -62,7 +60,6 @@ public class DashboardView extends JFrame {
 
         if (itemEventos != null) {
             itemEventos.setSeleccionado(true);
-            itemColaboradores.setSeleccionado(false);
         }
     }
 
@@ -192,32 +189,18 @@ public class DashboardView extends JFrame {
         panel.setPreferredSize(new Dimension(330, 0));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
 
-        SidebarItem eventos = new SidebarItem("\uD83C\uDF77", "Eventos", true);
-        SidebarItem colaboradores = new SidebarItem("\uD83D\uDC65", "Colaboradores", false);
+        SidebarItem eventos = new SidebarItem("🍷", "Eventos", true);
         itemEventos = eventos;
-        itemColaboradores = colaboradores;
 
         eventos.setAlignmentX(Component.LEFT_ALIGNMENT);
-        colaboradores.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         panel.add(eventos);
-        panel.add(colaboradores);
 
         eventos.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 cardLayout.show(panelTarjetas, "EVENTOS");
                 itemEventos.setSeleccionado(true);
-                itemColaboradores.setSeleccionado(false);
-            }
-        });
-
-        colaboradores.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                cardLayout.show(panelTarjetas, "COLABORADORES");
-                itemColaboradores.setSeleccionado(true);
-                itemEventos.setSeleccionado(false);
             }
         });
 
@@ -238,19 +221,12 @@ public class DashboardView extends JFrame {
         OutlineButton nuevoEvento = new OutlineButton("Nuevo evento");
         nuevoEvento.setPreferredSize(new Dimension(220, 45));
 
-        OutlineButton colaborar = new OutlineButton("Colaborar");
-        colaborar.setPreferredSize(new Dimension(220, 45));
-
         nuevoEvento.addActionListener(e -> {
             NuevoEventoView nuevoEventoView = new NuevoEventoView(this);
             nuevoEventoView.setVisible(true);
         });
 
-        colaborar.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Función en desarrollo: unirse como colaborador."));
-
         panel.add(nuevoEvento);
-        panel.add(colaborar);
         return panel;
     }
 
