@@ -1,7 +1,10 @@
 package modules.user.service;
 
 import config.exception.DatabaseConnectionException;
+import modules.shared.http.HttpClientWrapper;
+import modules.shared.integrations.decolecta.DecolectaService;
 import modules.user.dto.UserRegistrationDto;
+import modules.user.exception.UserValidatorException;
 import modules.user.mapper.UserMapper;
 import modules.user.model.User;
 import modules.user.repository.IUserRepository;
@@ -25,6 +28,14 @@ public class UserService {
   public void registerUser(UserRegistrationDto userRegistrationDto) throws DatabaseConnectionException {
     // validar
     userValidator.validateRegistration(userRegistrationDto);
+
+    // Validar DNI con la API de RENIEC
+    DecolectaService decolectaService = new DecolectaService(new HttpClientWrapper());
+    String nombreCompleto = decolectaService.obtenerNombrePorDni(userRegistrationDto.getDni());
+    if ("DNI no existe".equalsIgnoreCase(nombreCompleto)) {
+      throw new UserValidatorException("El DNI ingresado no existe en la RENIEC.");
+    }
+
     // convertir (delegamos a maper)
     User user = userMapper.toEntity(userRegistrationDto);
 

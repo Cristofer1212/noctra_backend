@@ -58,6 +58,7 @@ public class ScannerService implements IScanner {
                         }
 
                         // 3. Lógica de activación (Solo si es la primera vez)
+                        String movementType = "Entry";
                         if ("SIN_USAR".equals(invitacion.getState())) {
                             invitacion.setState("USADO");
                             try {
@@ -66,11 +67,13 @@ public class ScannerService implements IScanner {
                                 System.err.println("DEBUG: Error al actualizar estado: " + e.getMessage());
                                 return false;
                             }
+                        } else if ("USADO".equals(invitacion.getState())) {
+                            movementType = "Reingreso";
                         }
 
                         // 4. Registro de movimiento
                         try {
-                            Scan scan = new Scan(invitacion.getId(), porteroId, "Entry", "SUCCESS");
+                            Scan scan = new Scan(invitacion.getId(), porteroId, movementType, "SUCCESS");
                             scanRepository.save(scan);
                             try {
                                 views.dashboard.EventDetailView.refreshAll(invitacion.getEventId());

@@ -132,6 +132,7 @@ public class EventDetailView extends JFrame {
         int recurrentes = 0;
         int porcentajeNuevos = 0;
         int porcentajeRecurrentes = 0;
+        int totalInvitaciones = 0;
     }
 
     private EventStats obtenerEstadisticas(int eventId) {
@@ -161,6 +162,7 @@ public class EventDetailView extends JFrame {
                     eventStats.recurrentes = rs.getInt("asistentes_recurrentes");
                     eventStats.porcentajeNuevos = rs.getInt("porcentaje_nuevos");
                     eventStats.porcentajeRecurrentes = rs.getInt("porcentaje_recurrentes");
+                    eventStats.totalInvitaciones = rs.getInt("total_asistentes");
                 }
             }
         } catch (Exception e) {
@@ -366,142 +368,67 @@ public class EventDetailView extends JFrame {
         JPanel centerSection = new JPanel(new GridLayout(1, 2, 20, 0));
         centerSection.setOpaque(false);
 
-        int totalVal = stats.totalAsistentes;
-        int nuevosVal = stats.nuevos;
-        int recurrentesVal = stats.recurrentes;
-        int nuevosPct = (totalVal > 0) ? (nuevosVal * 100 / totalVal) : 0;
-        int recurrentesPct = (totalVal > 0) ? (recurrentesVal * 100 / totalVal) : 0;
+        int totalInvitaciones = stats.totalInvitaciones;
+        int totalAsistentes = stats.totalAsistentes;
+        int exitoPct = (totalInvitaciones > 0) ? (totalAsistentes * 100 / totalInvitaciones) : 0;
 
         // Columna Izquierda: Gráfico de dona grueso
-        DonutChart chart = new DonutChart(totalVal, nuevosVal, recurrentesVal);
+        DonutChart chart = new DonutChart(totalInvitaciones, totalAsistentes);
         centerSection.add(chart);
 
         // Columna Derecha: Leyenda vertical
         JPanel legendPanel = new JPanel();
         legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.Y_AXIS));
         legendPanel.setOpaque(false);
-        legendPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        legendPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
 
-        // Fila Nuevos (Cian oscuro)
-        JPanel rowNuevos = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        rowNuevos.setOpaque(false);
-        JLabel dotNuevos = new JLabel("●");
-        dotNuevos.setFont(new Font("SansSerif", Font.BOLD, 18));
-        dotNuevos.setForeground(new Color(8, 145, 178)); // Cian oscuro
-        JPanel textNuevosPanel = new JPanel();
-        textNuevosPanel.setLayout(new BoxLayout(textNuevosPanel, BoxLayout.Y_AXIS));
-        textNuevosPanel.setOpaque(false);
-        JLabel lblNuevosTitle = new JLabel("Nuevos");
-        lblNuevosTitle.setFont(new Font("SansSerif", Font.BOLD, 13));
-        lblNuevosTitle.setForeground(TEXTO_OSCURO);
-        JLabel lblNuevosVal = new JLabel(nuevosVal + " (" + nuevosPct + "%)");
-        lblNuevosVal.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblNuevosVal.setForeground(TEXTO_MUTED);
-        textNuevosPanel.add(lblNuevosTitle);
-        textNuevosPanel.add(lblNuevosVal);
-        rowNuevos.add(dotNuevos);
-        rowNuevos.add(textNuevosPanel);
+        // Fila Asistentes (Cian oscuro)
+        JPanel rowAsistentes = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        rowAsistentes.setOpaque(false);
+        JLabel dotAsistentes = new JLabel("●");
+        dotAsistentes.setFont(new Font("SansSerif", Font.BOLD, 18));
+        dotAsistentes.setForeground(new Color(8, 145, 178)); // Cian oscuro
+        JPanel textAsistentesPanel = new JPanel();
+        textAsistentesPanel.setLayout(new BoxLayout(textAsistentesPanel, BoxLayout.Y_AXIS));
+        textAsistentesPanel.setOpaque(false);
+        JLabel lblAsistentesTitle = new JLabel("Asistentes");
+        lblAsistentesTitle.setFont(new Font("SansSerif", Font.BOLD, 13));
+        lblAsistentesTitle.setForeground(TEXTO_OSCURO);
+        JLabel lblAsistentesVal = new JLabel(totalAsistentes + " (" + exitoPct + "%)");
+        lblAsistentesVal.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblAsistentesVal.setForeground(TEXTO_MUTED);
+        textAsistentesPanel.add(lblAsistentesTitle);
+        textAsistentesPanel.add(lblAsistentesVal);
+        rowAsistentes.add(dotAsistentes);
+        rowAsistentes.add(textAsistentesPanel);
 
-        // Fila Recurrentes (Cian claro)
-        JPanel rowRecurrentes = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        rowRecurrentes.setOpaque(false);
-        JLabel dotRecurrentes = new JLabel("●");
-        dotRecurrentes.setFont(new Font("SansSerif", Font.BOLD, 18));
-        dotRecurrentes.setForeground(new Color(207, 250, 254)); // Cian claro
-        JPanel textRecurrentesPanel = new JPanel();
-        textRecurrentesPanel.setLayout(new BoxLayout(textRecurrentesPanel, BoxLayout.Y_AXIS));
-        textRecurrentesPanel.setOpaque(false);
-        JLabel lblRecurrentesTitle = new JLabel("Recurrentes");
-        lblRecurrentesTitle.setFont(new Font("SansSerif", Font.BOLD, 13));
-        lblRecurrentesTitle.setForeground(TEXTO_OSCURO);
-        JLabel lblRecurrentesVal = new JLabel(recurrentesVal + " (" + recurrentesPct + "%)");
-        lblRecurrentesVal.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblRecurrentesVal.setForeground(TEXTO_MUTED);
-        textRecurrentesPanel.add(lblRecurrentesTitle);
-        textRecurrentesPanel.add(lblRecurrentesVal);
-        rowRecurrentes.add(dotRecurrentes);
-        rowRecurrentes.add(textRecurrentesPanel);
+        // Fila Invitaciones (Cian claro / restante)
+        JPanel rowInvitaciones = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        rowInvitaciones.setOpaque(false);
+        JLabel dotInvitaciones = new JLabel("●");
+        dotInvitaciones.setFont(new Font("SansSerif", Font.BOLD, 18));
+        dotInvitaciones.setForeground(new Color(207, 250, 254)); // Cian claro
+        JPanel textInvitacionesPanel = new JPanel();
+        textInvitacionesPanel.setLayout(new BoxLayout(textInvitacionesPanel, BoxLayout.Y_AXIS));
+        textInvitacionesPanel.setOpaque(false);
+        JLabel lblInvitacionesTitle = new JLabel("Total Invitaciones");
+        lblInvitacionesTitle.setFont(new Font("SansSerif", Font.BOLD, 13));
+        lblInvitacionesTitle.setForeground(TEXTO_OSCURO);
+        JLabel lblInvitacionesVal = new JLabel(totalInvitaciones + " (100%)");
+        lblInvitacionesVal.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblInvitacionesVal.setForeground(TEXTO_MUTED);
+        textInvitacionesPanel.add(lblInvitacionesTitle);
+        textInvitacionesPanel.add(lblInvitacionesVal);
+        rowInvitaciones.add(dotInvitaciones);
+        rowInvitaciones.add(textInvitacionesPanel);
 
-        // Fila Total
-        JPanel rowTotal = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        rowTotal.setOpaque(false);
-        JPanel textTotalPanel = new JPanel();
-        textTotalPanel.setLayout(new BoxLayout(textTotalPanel, BoxLayout.Y_AXIS));
-        textTotalPanel.setOpaque(false);
-        JLabel lblTotalTitle = new JLabel("Total Asistentes");
-        lblTotalTitle.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblTotalTitle.setForeground(TEXTO_MUTED);
-        JLabel lblTotalVal = new JLabel(totalVal + " (100%)");
-        lblTotalVal.setFont(new Font("SansSerif", Font.BOLD, 15));
-        lblTotalVal.setForeground(CYAN_ACCENT); // Destacado en cian
-        textTotalPanel.add(lblTotalTitle);
-        textTotalPanel.add(lblTotalVal);
-        rowTotal.add(Box.createRigidArea(new Dimension(16, 0))); // Alineación
-        rowTotal.add(textTotalPanel);
-
-        legendPanel.add(rowNuevos);
-        legendPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        legendPanel.add(rowRecurrentes);
-        legendPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        legendPanel.add(rowTotal);
+        legendPanel.add(rowAsistentes);
+        legendPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        legendPanel.add(rowInvitaciones);
 
         centerSection.add(legendPanel);
         panel.add(centerSection, BorderLayout.CENTER);
 
-        // Recuadro Inferior (Distribución de asistentes)
-        JPanel bottomBox = new JPanel(new BorderLayout(15, 0)) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(GRIS_CLARO_BOX);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
-                g2.dispose();
-            }
-        };
-        bottomBox.setOpaque(false);
-        bottomBox.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 16));
-
-        // Izquierda del recuadro (Icono de barras, título y subtítulo)
-        JPanel boxLeft = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-        boxLeft.setOpaque(false);
-        JLabel barIcon = new JLabel("📊");
-        barIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
-        barIcon.setForeground(CYAN_ACCENT);
-
-        JPanel boxLeftText = new JPanel();
-        boxLeftText.setLayout(new BoxLayout(boxLeftText, BoxLayout.Y_AXIS));
-        boxLeftText.setOpaque(false);
-        JLabel boxTitle = new JLabel("Distribución de asistentes");
-        boxTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
-        boxTitle.setForeground(TEXTO_OSCURO);
-        JLabel boxSub = new JLabel("Muestreo en tiempo real");
-        boxSub.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        boxSub.setForeground(TEXTO_MUTED);
-        boxLeftText.add(boxTitle);
-        boxLeftText.add(boxSub);
-        boxLeft.add(barIcon);
-        boxLeft.add(boxLeftText);
-        bottomBox.add(boxLeft, BorderLayout.WEST);
-
-        // Derecha del recuadro (100% Cobertura total)
-        JPanel boxRight = new JPanel();
-        boxRight.setLayout(new BoxLayout(boxRight, BoxLayout.Y_AXIS));
-        boxRight.setOpaque(false);
-        boxRight.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        JLabel pctLabel = new JLabel("100%", SwingConstants.RIGHT);
-        pctLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-        pctLabel.setForeground(CYAN_ACCENT);
-        pctLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        JLabel covLabel = new JLabel("Cobertura total", SwingConstants.RIGHT);
-        covLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        covLabel.setForeground(TEXTO_MUTED);
-        covLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        boxRight.add(pctLabel);
-        boxRight.add(covLabel);
-        bottomBox.add(boxRight, BorderLayout.EAST);
-
-        panel.add(bottomBox, BorderLayout.SOUTH);
         return panel;
     }
 
@@ -599,14 +526,12 @@ public class EventDetailView extends JFrame {
     }
 
     public static class DonutChart extends JComponent {
-        private final int total;
-        private final int nuevos;
-        private final int recurrentes;
+        private final int totalInvitaciones;
+        private final int totalAsistentes;
 
-        public DonutChart(int total, int nuevos, int recurrentes) {
-            this.total = total;
-            this.nuevos = nuevos;
-            this.recurrentes = recurrentes;
+        public DonutChart(int totalInvitaciones, int totalAsistentes) {
+            this.totalInvitaciones = totalInvitaciones;
+            this.totalAsistentes = totalAsistentes;
             setPreferredSize(new Dimension(200, 200));
         }
 
@@ -622,38 +547,41 @@ public class EventDetailView extends JFrame {
 
             g2.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
 
-            if (total == 0) {
-                // Dibujar un anillo gris sutil si no hay asistentes
+            if (totalInvitaciones == 0) {
+                // Dibujar un anillo gris sutil si no hay invitaciones
                 g2.setColor(new Color(226, 232, 240));
                 g2.drawArc(x + strokeWidth / 2, y + strokeWidth / 2, size - strokeWidth, size - strokeWidth, 0, 360);
             } else {
-                double angleNuevos = (360.0 * nuevos) / total;
-                double angleRecurrentes = (360.0 * recurrentes) / total;
+                double angleAsistentes = (360.0 * totalAsistentes) / totalInvitaciones;
+                double angleResto = 360.0 - angleAsistentes;
 
-                // Arco de Nuevos (Cian oscuro)
+                // Arco de Asistentes (Cian oscuro)
                 g2.setColor(new Color(8, 145, 178));
-                g2.drawArc(x + strokeWidth / 2, y + strokeWidth / 2, size - strokeWidth, size - strokeWidth, 90, (int) -angleNuevos);
+                g2.drawArc(x + strokeWidth / 2, y + strokeWidth / 2, size - strokeWidth, size - strokeWidth, 90, (int) -angleAsistentes);
 
-                // Arco de Recurrentes (Cian claro)
+                // Arco de Invitaciones restantes (Cian claro)
                 g2.setColor(new Color(207, 250, 254));
-                g2.drawArc(x + strokeWidth / 2, y + strokeWidth / 2, size - strokeWidth, size - strokeWidth, (int) (90 - angleNuevos), (int) -angleRecurrentes);
+                g2.drawArc(x + strokeWidth / 2, y + strokeWidth / 2, size - strokeWidth, size - strokeWidth, (int) (90 - angleAsistentes), (int) -angleResto);
             }
 
-            // Texto Central: Número Grande
+            // Calcular porcentaje de éxito
+            int porcentajeExito = (totalInvitaciones > 0) ? (totalAsistentes * 100 / totalInvitaciones) : 0;
+
+            // Texto Central: Porcentaje Grande
             g2.setColor(TEXTO_OSCURO);
             g2.setFont(new Font("SansSerif", Font.BOLD, 32));
-            String totalStr = String.valueOf(total);
+            String totalStr = porcentajeExito + "%";
             FontMetrics fmTotal = g2.getFontMetrics();
             int totalWidth = fmTotal.stringWidth(totalStr);
-            g2.drawString(totalStr, getWidth() / 2 - totalWidth / 2, getHeight() / 2 + 10);
+            g2.drawString(totalStr, getWidth() / 2 - totalWidth / 2, getHeight() / 2 + 5);
 
-            // Texto Central: "Total Asistentes"
+            // Texto Central: "Éxito"
             g2.setColor(TEXTO_MUTED);
             g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            String labelStr = "Total Asistentes";
+            String labelStr = "Éxito";
             FontMetrics fmLabel = g2.getFontMetrics();
             int labelWidth = fmLabel.stringWidth(labelStr);
-            g2.drawString(labelStr, getWidth() / 2 - labelWidth / 2, getHeight() / 2 - 20);
+            g2.drawString(labelStr, getWidth() / 2 - labelWidth / 2, getHeight() / 2 + 23);
 
             g2.dispose();
         }
@@ -676,12 +604,25 @@ public class EventDetailView extends JFrame {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+            int width = getWidth();
+            int height = getHeight();
+
+            // Dibujar sombra sutil
+            g2.setColor(new Color(0, 0, 0, 30));
+            if (getModel().isRollover()) {
+                g2.fill(new RoundRectangle2D.Float(0, 3, width, height - 3, 14, 14));
+            } else {
+                g2.fill(new RoundRectangle2D.Float(0, 2, width, height - 2, 14, 14));
+            }
+
+            // Dibujar cuerpo del botón
             if (getModel().isRollover()) {
                 g2.setColor(CYAN_HOVER);
+                g2.fill(new RoundRectangle2D.Float(0, 0, width, height - 3, 14, 14));
             } else {
                 g2.setColor(CYAN_ACCENT);
+                g2.fill(new RoundRectangle2D.Float(0, 1, width, height - 3, 14, 14));
             }
-            g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
 
             g2.dispose();
             super.paintComponent(g);

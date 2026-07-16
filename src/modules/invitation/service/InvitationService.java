@@ -128,7 +128,9 @@ public class InvitationService {
         // 2. BUSCAMOS EL EVENTO REAL
         String eventoNombre = "Evento";
         String fechaInicio = "Próximamente";
+        String horaInicio = "";
         String fechaFin = "";
+        String horaFin = "";
 
         try {
             // Asumiendo que tu repositorio tiene un método findById
@@ -136,15 +138,25 @@ public class InvitationService {
             if (eventoOpt.isPresent()) {
                 var eventoReal = eventoOpt.get();
                 eventoNombre = eventoReal.getName();
-                // Formateamos las fechas (asumiendo que son LocalDateTime)
-                fechaInicio = eventoReal.getStartDate().toLocalDate().toString();
-                fechaFin = eventoReal.getEndDate().toLocalDate().toString();
+                
+                // Formateadores amigables para el mensaje de WhatsApp
+                java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("hh:mm a", java.util.Locale.US);
+                
+                if (eventoReal.getStartDate() != null) {
+                    fechaInicio = eventoReal.getStartDate().format(dateFormatter);
+                    horaInicio = eventoReal.getStartDate().format(timeFormatter);
+                }
+                if (eventoReal.getEndDate() != null) {
+                    fechaFin = eventoReal.getEndDate().format(dateFormatter);
+                    horaFin = eventoReal.getEndDate().format(timeFormatter);
+                }
             }
         } catch (Exception e) {
             System.err.println("Error al obtener datos del evento: " + e.getMessage());
         }
 
         // 3. ENVIAMOS CON LOS DATOS DINÁMICOS
-        whatsappService.sendInvitation(phoneNumber, invitation.getCodeQr(), nombre, eventoNombre, fechaInicio, fechaFin);
+        whatsappService.sendInvitation(phoneNumber, invitation.getCodeQr(), nombre, eventoNombre, fechaInicio, horaInicio, fechaFin, horaFin);
     }
 }

@@ -132,19 +132,9 @@ public class NuevoEventoView extends JFrame {
         direccionField.setBounds(60, 409, 600, 42);
         panel.add(direccionField);
 
-        // --- AFORO ---
-        JLabel aforoLabel = crearEtiqueta("Aforo");
-        aforoLabel.setBounds(60, 466, 300, 22);
-        panel.add(aforoLabel);
-
-        JTextField aforoField = new JTextField();
-        CustomTextField.estilizarConBorde(aforoField);
-        aforoField.setBounds(60, 496, 600, 42);
-        panel.add(aforoField);
-
         // --- BOTÓN AÑADIR ---
         CustomButton añadirBtn = new CustomButton("Añadir", AZUL_BOTON);
-        añadirBtn.setBounds(280, 570, 220, 50);
+        añadirBtn.setBounds(280, 490, 220, 50);
         panel.add(añadirBtn);
 
         añadirBtn.addActionListener(e -> {
@@ -163,9 +153,8 @@ public class NuevoEventoView extends JFrame {
             String horaFin = sdfTime.format(horaFinSpinner.getValue());
 
             String direccion = direccionField.getText().trim();
-            String aforo = aforoField.getText().trim();
 
-            String error = controller.crearEvento(nombre, fechaInicio, horaInicio, fechaFin, horaFin, direccion, aforo);
+            String error = controller.crearEvento(nombre, fechaInicio, horaInicio, fechaFin, horaFin, direccion);
 
             if (error != null) {
                 JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);

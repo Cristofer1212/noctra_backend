@@ -13,7 +13,7 @@ public class NuevoEventoController {
     // Necesitas una instancia del cliente HTTP
     private final HttpClientWrapper httpClient = new HttpClientWrapper();
 
-    public String crearEvento(String nombre, String fechaInicio, String horaInicio, String fechaFin, String horaFin, String direccion, String aforo) {
+    public String crearEvento(String nombre, String fechaInicio, String horaInicio, String fechaFin, String horaFin, String direccion) {
         // 1. Validación de campos (lo que ya tienes)
         if (nombre.isBlank()) return "El nombre es obligatorio.";
 
@@ -24,8 +24,8 @@ public class NuevoEventoController {
             String end = fechaFin + " " + horaFin + ":00";
 
             String json = String.format(
-                    "{\"name\":\"%s\", \"address\":\"%s\", \"startDate\":\"%s\", \"endDate\":\"%s\", \"capacity\":%s, \"state\":\"ACTIVO\"}",
-                    nombre, direccion, start, end, aforo
+                    "{\"name\":\"%s\", \"address\":\"%s\", \"startDate\":\"%s\", \"endDate\":\"%s\", \"capacity\":0, \"state\":\"ACTIVO\"}",
+                    nombre, direccion, start, end
             );
 
             // 3. Enviar la petición al servidor (asegúrate de usar la URL completa)

@@ -15,6 +15,7 @@ BEGIN
     DECLARE v_hombres INT DEFAULT 0;
     DECLARE v_mujeres INT DEFAULT 0;
     DECLARE v_hora_pico INT DEFAULT -1;
+    DECLARE v_total_invitaciones INT DEFAULT 0;
     
     -- Variables para cálculos
     DECLARE v_primero_scan_at DATETIME DEFAULT NULL;
@@ -37,6 +38,11 @@ BEGIN
     SELECT COUNT(DISTINCT i.guest_id) INTO v_total_asistentes
     FROM scan s JOIN invitation i ON s.invitation_id = i.id
     WHERE i.event_id = p_event_id AND s.result = 'SUCCESS' AND s.movement_type IN ('ENTRY', 'RE_ENTRY', 'Entry', 'Reingreso', 'ENTRADA');
+
+    -- Total Invitaciones
+    SELECT COUNT(*) INTO v_total_invitaciones
+    FROM invitation
+    WHERE event_id = p_event_id;
 
     -- Recurrentes
     SELECT COUNT(DISTINCT i.guest_id) INTO v_recurrentes
@@ -125,7 +131,8 @@ BEGIN
         v_nuevos AS asistentes_nuevos,
         out_porcentaje_nuevos AS porcentaje_nuevos,
         v_recurrentes AS asistentes_recurrentes,
-        out_porcentaje_recurrentes AS porcentaje_recurrentes;
+        out_porcentaje_recurrentes AS porcentaje_recurrentes,
+        v_total_invitaciones AS total_invitaciones;
 
 END //
 
