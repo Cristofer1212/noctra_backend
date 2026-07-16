@@ -14,6 +14,7 @@ import modules.invitation.repository.InvitationRepository;
 import modules.invitation.service.InvitationService;
 import modules.portero.controller.PorteroController;
 import modules.portero.service.PorteroService;
+import modules.scan.repository.ScanRepository;
 import modules.shared.http.HttpClientWrapper;
 import modules.shared.integrations.cloudinary.CloudinaryService;
 import modules.shared.integrations.cloudinary.ICloudinaryService;
@@ -43,6 +44,7 @@ public class AppRouter {
 
         // --- INSTANCIA ÚNICA ---
         IInvitationRepository invitationRepository = new InvitationRepository();
+        modules.scan.repository.ScanRepository scanRepository = new ScanRepository();
         // -----------------------
 
         // Invitation Module
@@ -60,7 +62,7 @@ public class AppRouter {
         // Portero Module
         // Usamos el MISMO 'invitationRepository' aquí también
         IWhatsappService whatsappService1 = new WhatsappService(httpClient);
-        IScanner iScanner = new ScannerService(invitationRepository);
+        IScanner iScanner = new ScannerService(invitationRepository, scanRepository, eventRepository);
         PorteroService porteroService = new PorteroService(whatsappService1);
         PorteroController porteroController = new PorteroController(porteroService, iScanner);
 

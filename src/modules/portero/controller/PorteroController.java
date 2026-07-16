@@ -77,25 +77,42 @@ public class PorteroController implements HttpHandler {
         }
     }
 
-
     private void handleValidarQr(HttpExchange exchange) throws IOException {
         try {
-            // 1. String a JSON
+            // 1. Leer JSON
             String json = HttpUtils.readRequestBody(exchange);
-            // 2. Extraer el token (usando un Map genérico para no crear un DTO innecesario)
             Map body = new Gson().fromJson(json, Map.class);
+
+            // 2. Extraer token (validar que no sea null)
+            if (body == null || body.get("token") == null) {
+                HttpUtils.sendResponse(exchange, 400, "{\"error\": \"Token no proporcionado\"}");
+                return;
+            }
             String token = body.get("token").toString();
-            // 3. Delegar a servicio
-            boolean esValido = iScanner.scanQrInvitation(token);
-            // 4. Crear respuesta (usando un formato limpio)
+
+            // 3. Extraer porteroId de forma segura
+            Integer porteroId = 1; // Valor por defecto
+            if (body.get("porteroId") != null) {
+                // Gson suele convertir números a Double por defecto en mapas genéricos
+                porteroId = ((Number) body.get("porteroId")).intValue();
+            } else {
+                System.out.println("DEBUG: porteroId no recibido, usando ID por defecto: 1");
+            }
+
+            // 4. Delegar a servicio
+            boolean esValido = iScanner.scanQrInvitation(token, porteroId);
+
+            // 5. Crear respuesta
             String mensaje = esValido ? "Acceso Permitido" : "Acceso Denegado";
-            System.out.println("DEBUG: ¿Resultado del escaneo?: " + esValido);
             String response = String.format("{\"valido\": %b, \"mensaje\": \"%s\"}", esValido, mensaje);
 
             HttpUtils.sendResponse(exchange, 200, response);
         } catch (Exception e) {
             e.printStackTrace();
-            HttpUtils.sendResponse(exchange, 500, "{\"error\": \"Error al procesar el QR\"}");
+            HttpUtils.sendResponse(exchange, 500, "{\"error\": \"Error al procesar el QR: " + e.getMessage() + "\"}");
         }
     }
+
+
+
 }
