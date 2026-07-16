@@ -81,6 +81,17 @@ public class EventDetailView extends JFrame {
             controladorInvitacion.mostrar();
         });
         panelBotonWrapper.add(btnInvitados);
+
+        panelBotonWrapper.add(Box.createHorizontalStrut(15));
+
+        SolidCianButton btnStaff = new SolidCianButton("+ Staff");
+        btnStaff.setPreferredSize(new Dimension(200, 48));
+        btnStaff.addActionListener(e -> {
+            AddStaffView addStaffView = new AddStaffView(event);
+            addStaffView.setVisible(true);
+        });
+        panelBotonWrapper.add(btnStaff);
+
         panelColumnaIzquierda.add(panelBotonWrapper, BorderLayout.SOUTH);
 
         gridPanel.add(panelColumnaIzquierda);
@@ -112,18 +123,19 @@ public class EventDetailView extends JFrame {
 
     private static class EventStats {
         String momentoMayorGente = "N/A";
-        double personasPorMinuto = 0.0;
-        double hombresCadaUnaMujer = 0.0;
+        int personasPorMinuto = 0;
+        String ratioHombresMujeres = "N/A";
         int reingresoMujeres = 0;
         int reingresoHombres = 0;
         int totalAsistentes = 0;
         int nuevos = 0;
         int recurrentes = 0;
+        int porcentajeNuevos = 0;
+        int porcentajeRecurrentes = 0;
     }
 
     private EventStats obtenerEstadisticas(int eventId) {
         EventStats eventStats = new EventStats();
-        boolean hasData = false;
 
         String sql = "{CALL sp_get_event_stats(?)}";
 
@@ -133,70 +145,28 @@ public class EventDetailView extends JFrame {
             stmt.setInt(1, eventId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    int totalAsistentes = rs.getInt("total_asistentes");
-                    int recurrentes = rs.getInt("recurrentes");
-                    int nuevos = rs.getInt("nuevos");
-                    int reingresoMujeres = rs.getInt("reingreso_mujeres");
-                    int reingresoHombres = rs.getInt("reingreso_hombres");
-                    int hombres = rs.getInt("hombres");
-                    int mujeres = rs.getInt("mujeres");
-                    int horaPico = rs.getInt("hora_pico");
-                    int entrando15m = rs.getInt("entrando_15m");
-                    int totalEntradasPpm = rs.getInt("total_entradas_ppm");
-                    Timestamp primero = rs.getTimestamp("primero_scan_at");
-                    Timestamp ultimo = rs.getTimestamp("ultimo_scan_at");
-
-                    // Rellenar objeto stats
-                    eventStats.totalAsistentes = totalAsistentes;
-                    eventStats.recurrentes = recurrentes;
-                    eventStats.nuevos = nuevos;
-                    eventStats.reingresoMujeres = reingresoMujeres;
-                    eventStats.reingresoHombres = reingresoHombres;
-
-                    if (totalAsistentes > 0) {
-                        hasData = true;
-                    }
-
-                    // Calcular proporción
-                    if (mujeres > 0) {
-                        eventStats.hombresCadaUnaMujer = Math.round((double) hombres / mujeres * 10.0) / 10.0;
-                    } else if (hombres > 0) {
-                        eventStats.hombresCadaUnaMujer = hombres;
-                    } else {
-                        eventStats.hombresCadaUnaMujer = 0.0;
-                    }
-
-                    // Formatear Hora Pico
-                    if (horaPico >= 0) {
-                        String ampm = (horaPico >= 12) ? "PM" : "AM";
-                        int displayHour = (horaPico % 12 == 0) ? 12 : (horaPico % 12);
-                        eventStats.momentoMayorGente = String.format("%02d:00 %s", displayHour, ampm);
-                    } else {
+                    eventStats.momentoMayorGente = rs.getString("momento_mayor_gente");
+                    if (eventStats.momentoMayorGente == null) {
                         eventStats.momentoMayorGente = "N/A";
                     }
-
-                    // Calcular personas por minuto
-                    if (entrando15m > 0) {
-                        eventStats.personasPorMinuto = Math.round((entrando15m / 15.0) * 10.0) / 10.0;
-                    } else if (totalEntradasPpm > 0 && primero != null && ultimo != null) {
-                        long diffMs = ultimo.getTime() - primero.getTime();
-                        double mins = diffMs / 60000.0;
-                        if (mins > 1.0) {
-                            eventStats.personasPorMinuto = Math.round((totalEntradasPpm / mins) * 10.0) / 10.0;
-                        } else {
-                            eventStats.personasPorMinuto = totalEntradasPpm;
-                        }
-                    } else {
-                        eventStats.personasPorMinuto = 0.0;
+                    eventStats.personasPorMinuto = rs.getInt("personas_por_minuto");
+                    eventStats.ratioHombresMujeres = rs.getString("ratio_hombres_mujeres");
+                    if (eventStats.ratioHombresMujeres == null) {
+                        eventStats.ratioHombresMujeres = "N/A";
                     }
+                    eventStats.reingresoMujeres = rs.getInt("reingreso_mujeres");
+                    eventStats.reingresoHombres = rs.getInt("reingreso_hombres");
+                    eventStats.totalAsistentes = rs.getInt("total_asistentes");
+                    eventStats.nuevos = rs.getInt("asistentes_nuevos");
+                    eventStats.recurrentes = rs.getInt("asistentes_recurrentes");
+                    eventStats.porcentajeNuevos = rs.getInt("porcentaje_nuevos");
+                    eventStats.porcentajeRecurrentes = rs.getInt("porcentaje_recurrentes");
                 }
             }
         } catch (Exception e) {
             System.err.println("Error al ejecutar procedimiento sp_get_event_stats: " + e.getMessage());
             e.printStackTrace();
         }
-
-        // Si no se encuentran datos en la BD, dejamos los valores por defecto (0 y N/A)
 
         return eventStats;
     }
@@ -337,8 +307,8 @@ public class EventDetailView extends JFrame {
         listPanel.setOpaque(false);
 
         String picoVal = stats.momentoMayorGente;
-        String ppmVal = String.valueOf((int) stats.personasPorMinuto);
-        String ratioVal = stats.hombresCadaUnaMujer > 0 ? formatRatio(stats.hombresCadaUnaMujer) : "N/A";
+        String ppmVal = String.valueOf(stats.personasPorMinuto);
+        String ratioVal = stats.ratioHombresMujeres;
         String reFemVal = String.valueOf(stats.reingresoMujeres);
         String reMascVal = String.valueOf(stats.reingresoHombres);
 

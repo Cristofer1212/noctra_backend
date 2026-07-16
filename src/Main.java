@@ -54,6 +54,7 @@ public class Main {
             });
 
         } catch (DatabaseConnectionException e) {
+
             System.err.println("[ERROR CRÍTICO] " + e.getMessage());
         } catch (IOException e) {
             System.err.println("[ERROR CRÍTICO WEB] " + e.getMessage());
