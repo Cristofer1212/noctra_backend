@@ -56,31 +56,31 @@ public class WhatsappService implements IWhatsappService {
     }
 
     @Override
-    public void sendPorteroAsignado(String  nombreStaff, String numCelular, String nombreEvento, String nombreRemitente) {
-        // Template meta
+    public void sendPorteroAsignado(String nombreStaff, String numCelular, String nombreEvento, String nombreRemitente) {
+        // numCelular ya se usó arriba en "to", no lo metas en los parámetros del body
         String jsonPayload = String.format("""
-        {
-          "messaging_product": "whatsapp",
-          "to": "%s",
-          "type": "template",
-          "template": {
-            "name": "portero_asignado",
-            "language": { "code": "es" },
-            "components": [
-              {
-                "type": "body",
-                "parameters": [
-                  { "type": "text", "text": "%s" },
-                  { "type": "text", "text": "%s" },
-                  { "type": "text", "text": "%s" }
-                ]
-              }
+    {
+      "messaging_product": "whatsapp",
+      "to": "%s",
+      "type": "template",
+      "template": {
+        "name": "portero_asignado",
+        "language": { "code": "es" },
+        "components": [
+          {
+            "type": "body",
+            "parameters": [
+              { "type": "text", "text": "%s" },
+              { "type": "text", "text": "%s" },
+              { "type": "text", "text": "%s" }
             ]
           }
-        }
-        """, numCelular, nombreStaff, nombreEvento, nombreRemitente);
-        httpClient.post(apiUrl, jsonPayload, token);
+        ]
+      }
+    }
+    """, numCelular, nombreStaff, nombreEvento, nombreRemitente); // Orden correcto: staff, evento, remitente
 
+        httpClient.post(apiUrl, jsonPayload, token);
     }
 
 
